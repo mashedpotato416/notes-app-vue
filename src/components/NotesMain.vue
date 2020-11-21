@@ -3,14 +3,26 @@
     <div class="note-title"><strong>{{ noteTitle }}</strong></div>
     <div class="note-content">{{ noteContent }}</div>
     <div class="note-user"><em>by: {{ noteUser }}</em></div>
-    <div class="note-buttons">
+    <div v-if="!initDelete" class="note-buttons">
       <button class="button note-button">Edit</button>
-      <button class="button note-button delete-button" @click="testMethod">Delete</button>
+      <button class="button note-button delete-button" @click="onDelete">Delete</button>
+    </div>
+    <div v-else>
+    <notes-delete @delete-yes="yesDelete" @delete-no="onDelete"></notes-delete>
     </div>
   </div>
 </template>
 <script>
+  import NotesDelete from "./NotesDelete.vue";
   export default {
+    data() {
+      return {
+        initDelete: false
+      }
+    },
+    components: {
+      NotesDelete
+    },
     props: {
         noteId: { type: String },
         noteTitle: { type: String },
@@ -18,8 +30,14 @@
         noteUser: { type: String }
       },
     methods: {
-      testMethod() {
-        console.log("Test2");
+      //function to toggle delete view
+      onDelete() {
+        this.initDelete = !this.initDelete
+      },
+      //function to toggle delete view and emit noteid to delete
+      yesDelete() {
+        this.$emit('deleteId',this.noteId)
+        this.initDelete = !this.initDelete
       }
     }
   }  
