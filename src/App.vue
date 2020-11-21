@@ -2,63 +2,71 @@
   <div id="app">
     <div class="container">
       <h1 class="header">Notes App</h1>
-      <div class="login-prompt">You are currently logged in as hector.vergara416@gmail.com</div>
-      <button class="logout-button" @click="testMethodApp">Logout</button>
-      <div v-for="note in Notes" :key="note.dataId">
-        <notes-main
-        :noteUser="note.dataUser"
-        :noteTitle="note.dataTitle"
-        :noteContent="note.dataContent">
-        </notes-main>
-      </div>
+      <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
+      <button class="logout-button">Logout</button>
+      <ul>
+        <li><notes-create @note-added="addNote"></notes-create></li>
+        <li v-for="note in Notes" :key="note.dataId">
+          <notes-main :noteUser="note.dataUser" :noteTitle="note.dataTitle" :noteContent="note.dataContent"> </notes-main>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
-import NotesMain from './components/NotesMain.vue'
-import uniqueId from 'lodash.uniqueid';
+import NotesMain from "./components/NotesMain.vue";
+import NotesCreate from "./components/NotesCreate.vue";
+import uniqueId from "lodash.uniqueid";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
-    NotesMain
+    NotesMain,
+    NotesCreate,
   },
   data() {
     return {
+      currentUser: "hector.vergara416@gmail.com",
       Notes: [
-          {
-            dataUser: 'steve_austin@gmail.com',
-            dataId: uniqueId('note-'),
-            dataTitle: "Does anybody have, a cold beer for Steve Austin?!??!!?",
-            dataContent: "I'll open up a can of whoop-ass on you!” “That was the absolute worst catch phrase I've ever heard in the history of Monday Night Raw.” “Last time I had three or four of those I crapped for three days straight!"
-          },
-          {
-            dataUser: 'john_cena@yahoo.com',
-            dataId: uniqueId('note-'),
-            dataTitle: "Loyalty",
-            dataContent: "When people show loyalty to you, you take care of those who are with you. It's how it goes with everything. If you have a small circle of friends, and one of those friends doesn't stay loyal to you, they don't stay your friend for very long."
-          }
-        ]
+        {
+          dataUser: "steve_austin@gmail.com",
+          dataId: uniqueId(),
+          dataTitle: "Does anybody have, a cold beer for Steve Austin?!??!!?",
+          dataContent: "I'll open up a can of whoop-ass on you!” “That was the absolute worst catch phrase I've ever heard in the history of Monday Night Raw.” “Last time I had three or four of those I crapped for three days straight!",
+        },
+        {
+          dataUser: "john_cena@yahoo.com",
+          dataId: uniqueId(),
+          dataTitle: "Loyalty",
+          dataContent: "When people show loyalty to you, you take care of those who are with you. It's how it goes with everything. If you have a small circle of friends, and one of those friends doesn't stay loyal to you, they don't stay your friend for very long.",
+        },
+      ],
     };
   },
   methods: {
-    testMethodApp() {
-      console.log(this.Notes[0]['dataUser'])
+    addNote(noteData) {
+      var newData = {
+        dataUser: this.currentUser,
+        dataId: uniqueId(),
+        dataTitle: noteData[0],
+        dataContent: noteData[1]
+      }
+      this.Notes.push(newData)
     }
   }
-}
+};
 </script>
 
 <style>
 #app {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: "Source Sans Pro", sans-serif;
   color: #2c3e50;
   margin-top: 60px;
 }
 .container {
   margin: auto;
-  width: 50%;
+  width: 60%;
   border: 3px solid #4bf8f8;
   padding: 0px;
   background-color: #4fffff30;
@@ -89,5 +97,14 @@ export default {
   text-align: center;
   font-size: 1em;
   margin: 5px;
+}
+ul {
+  list-style-type: none;
+  padding: 5px;
+  text-align: center;
+  margin: auto;
+}
+li {
+  margin: 15px auto 15px auto;
 }
 </style>
