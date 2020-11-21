@@ -6,7 +6,8 @@
       type="text" 
       id="newTitle" 
       v-model.lazy.trim="noteTitle" 
-      size="50">
+      size="50"
+      ref="newInput">
     </div>
     <br>
     <div class="new-content">
@@ -15,7 +16,8 @@
       id="newContent" 
       rows="7" 
       cols="52" 
-      v-model.lazy.trim="noteContent">
+      v-model.lazy.trim="noteContent"
+      ref="newTextarea">
     </textarea>
     </div>
     <div class="note-buttons">
@@ -37,6 +39,8 @@
           return;
         }
         var noteData = [this.noteTitle, this.noteContent]
+        this.$refs.newTextarea.value = ""
+        this.$refs.newInput.value = ""
         this.$emit('note-added', noteData)
       }
     }
