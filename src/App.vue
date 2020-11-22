@@ -6,17 +6,24 @@
       <button class="logout-button" @click="testMethod">Logout</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
-        <li v-for="note in sortedNotes" :key="note.dataId">
-          <notes-main 
-            :noteUser="note.dataUser" 
-            :noteId="note.dataId" 
-            :noteTitle="note.dataTitle" 
-            :noteContent="note.dataContent"
-            :currentUser="currentUser"
-            @deleteId="removeNote"
-            @updateNote="updateNotes"> 
-          </notes-main>
-        </li>
+        <div v-if="Notes.length !== 0">
+          <li v-for="note in sortedNotes" :key="note.dataId">
+            <notes-main 
+              :noteUser="note.dataUser" 
+              :noteId="note.dataId" 
+              :noteTitle="note.dataTitle" 
+              :noteContent="note.dataContent"
+              :currentUser="currentUser"
+              @deleteId="removeNote"
+              @updateNote="updateNotes"> 
+            </notes-main>
+          </li>
+        </div>
+        <div>
+          <li class="no-data">
+            <strong>No notes are posted at the moment.</strong>
+          </li>
+        </div>
       </ul>
     </div>
   </div>
@@ -38,36 +45,7 @@ export default {
     return {
       currentUser: "john_cena@yahoo.com",
       testVar: "",
-      Notes: [
-        {
-          dataUser: "steve_austin@gmail.com",
-          dataId: uniqueId(),
-          dataTitle: "Does anybody have, a cold beer for Steve Austin?!??!!?",
-          dataContent: "I'll open up a can of whoop-ass on you!” “That was the absolute worst catch phrase I've ever heard in the history of Monday Night Raw.” “Last time I had three or four of those I crapped for three days straight!",
-          dataDate: 86400000*5
-        },
-        {
-          dataUser: "john_cena@yahoo.com",
-          dataId: uniqueId(),
-          dataTitle: "Loyalty",
-          dataContent: "When people show loyalty to you, you take care of those who are with you. It's how it goes with everything. If you have a small circle of friends, and one of those friends doesn't stay loyal to you, they don't stay your friend for very long.",
-          dataDate: 0
-        },
-        {
-          dataUser: "eddie_guerrero@hotmail.com",
-          dataId: uniqueId(),
-          dataTitle: "Lie Cheat Steal",
-          dataContent: "If you're not cheating, you're not trying",
-          dataDate: 86400000
-        },
-        {
-          dataUser: "dwayne_johnson@fakewebsite.com",
-          dataId: uniqueId(),
-          dataTitle: "The Rock Mentality",
-          dataContent: "I'll never, ever be full. I'll always be hungry. Obviously, I'm not talking about food. Growing up, I had nothing for such a long time. Someone told me a long time ago, and I've never forgotten it, ‘Once you've ever been hungry, really, really hungry, then you'll never, ever be full.",
-          dataDate: 86400000*7
-        },
-      ],
+      Notes: []
     };
   },
   methods: {
@@ -108,28 +86,28 @@ export default {
       this.Notes = []
       this.Notes = newNotes
     },
-    // testMethod() {
-    //   console.log('Firebase testing...')
-    //   var newNotes = []
-    //   var database = firebase.database()
-    //   // --adding new data in firebase--
-    //   for (var i=0; i<this.Notes.length; i++) {
-    //     console.log(i)
-    //     database.ref('notes').push(this.Notes[i])
-    //   }
+    testMethod() {
+      console.log('Firebase testing...')
+      var newNotes = []
+      var database = firebase.database()
+      // --adding new data in firebase--
+      // for (var i=0; i<this.Notes.length; i++) {
+      //   console.log(i)
+      //   database.ref('notes').push(this.Notes[i])
+      // }
       
-    //   // --retrieving data in database--
-    //   // database.ref('notes').once('value').then(
-    //   //   (snapshot) => {
-    //   //     var databaseNotes = snapshot.val()
-    //   //     console.log(databaseNotes)
-    //   //     var databaseKeys = Object.keys(databaseNotes)
-    //   //     databaseKeys.forEach( (key) => { newNotes.push(databaseNotes[key]) } )
-    //   //     console.log(newNotes)
-    //   //   }
-    //   // )
+      // --retrieving data in database--
+      // database.ref('notes').once('value').then(
+      //   (snapshot) => {
+      //     var databaseNotes = snapshot.val()
+      //     console.log(databaseNotes)
+      //     var databaseKeys = Object.keys(databaseNotes)
+      //     databaseKeys.forEach( (key) => { newNotes.push(databaseNotes[key]) } )
+      //     console.log(newNotes)
+      //   }
+      // )
 
-    // }
+    }
   },
   computed: {
     // sorts Notes base on dataDate
@@ -204,5 +182,9 @@ ul {
 }
 li {
   margin: 15px auto 15px auto;
+}
+.no-data {
+  font-size: 1.2em;
+  color: red;
 }
 </style>
