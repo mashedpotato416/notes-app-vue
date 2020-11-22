@@ -1,24 +1,24 @@
 <template>
   <div class="new-block">
     <div class="new-title">
-    <label for="newTitle"><strong>Title:</strong></label><br>
-    <input 
-      type="text" 
-      id="newTitle" 
-      v-model.lazy.trim="noteTitle" 
-      size="50"
-      ref="newInput">
+      <label for="newTitle"><strong>Title:</strong></label><br>
+      <input 
+        type="text" 
+        id="newTitle" 
+        v-model.lazy.trim="noteTitle" 
+        size="50"
+        ref="newInput">
     </div>
     <br>
     <div class="new-content">
-    <label for="newContent"><strong>Content:</strong></label><br>
-    <textarea 
-      id="newContent" 
-      rows="7" 
-      cols="52" 
-      v-model.lazy.trim="noteContent"
-      ref="newTextarea">
-    </textarea>
+      <label for="newContent"><strong>Content:</strong></label><br>
+      <textarea 
+        id="newContent" 
+        rows="7" 
+        cols="52" 
+        v-model.lazy.trim="noteContent"
+        ref="newTextarea">
+      </textarea>
     </div>
     <div class="note-buttons">
       <button class="button note-button" @click="onAdd">Add</button>
@@ -38,7 +38,7 @@
         if(this.noteTitle === "" || this.noteContent === "") {
           return;
         }
-        var noteData = [this.noteTitle, this.noteContent]
+        var noteData = [this.noteTitle, this.noteContent, new Date()]
         this.$refs.newTextarea.value = ""
         this.$refs.newInput.value = ""
         this.$emit('note-added', noteData)

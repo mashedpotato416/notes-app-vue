@@ -1,27 +1,40 @@
 <template>
-  <div class="note-block">
+  <div v-if="!initEdit" class="note-block">
     <div class="note-title"><strong>{{ noteTitle }}</strong></div>
     <div class="note-content">{{ noteContent }}</div>
     <div class="note-user"><em>by: {{ noteUser }}</em></div>
     <div v-if="!initDelete" class="note-buttons">
-      <button class="button note-button">Edit</button>
+      <button class="button note-button" @click="onEdit">Edit</button>
       <button class="button note-button delete-button" @click="onDelete">Delete</button>
     </div>
     <div v-else>
-    <notes-delete @delete-yes="yesDelete" @delete-no="onDelete"></notes-delete>
+      <notes-delete @delete-yes="yesDelete" @delete-no="onDelete"></notes-delete>
     </div>
+  </div>
+  <div v-else class="note-block">
+    <notes-edit 
+      :existId="noteId" 
+      :existTitle="noteTitle" 
+      :existContent="noteContent" 
+      :existUser="noteUser"
+      @edit-cancel="onEdit"
+      @edit-save="saveEdit">
+    </notes-edit>
   </div>
 </template>
 <script>
-  import NotesDelete from "./NotesDelete.vue";
+  import NotesDelete from "./NotesDelete.vue"
+  import NotesEdit from "./NotesEdit.vue"
   export default {
     data() {
       return {
-        initDelete: false
+        initDelete: false,
+        initEdit: false
       }
     },
     components: {
-      NotesDelete
+      NotesDelete,
+      NotesEdit
     },
     props: {
         noteId: { type: String },
@@ -38,6 +51,17 @@
       yesDelete() {
         this.$emit('deleteId',this.noteId)
         this.initDelete = !this.initDelete
+      },
+      //function to toggle edit view
+      onEdit() {
+        this.initEdit = !this.initEdit
+      },
+      //function to toggle edit view and emit new data
+      saveEdit(updateData) {
+        // this.noteTitle = updateData[1]
+        // this.noteContent = updateData[2]
+        this.$emit('updateNote',updateData)
+        this.initEdit = false
       }
     }
   }  
