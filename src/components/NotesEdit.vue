@@ -6,7 +6,7 @@
           type="text" 
           class="edit-title" 
           ref="refTitle"
-          v-model.lazy.trim="editTitle">
+          v-model.trim="editTitle">
       </div>
       <div>
         <textarea 
@@ -48,6 +48,9 @@ export default {
     var content = this.$refs.refContent
     title.value = this.existTitle
     content.value = this.existContent
+    // presets if user don't edit these values
+    this.editTitle = this.existTitle
+    this.editContent = this.existContent
   },
   methods: {
     onCancel() {
@@ -58,9 +61,9 @@ export default {
       var updateId = this.existId
       var updateTitle = this.editTitle
       var updateContent = this.editContent
+      var updateDate = Date.now()
       var updateUser = this.existUser
-      var updateData = [updateId, updateTitle, updateContent, updateUser]
-      console.log('NotesEdit: '+ updateData)
+      var updateData = [updateId, updateTitle, updateContent, updateDate, updateUser]
       this.$emit('edit-save',updateData) 
     }
   }

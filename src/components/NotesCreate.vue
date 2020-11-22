@@ -38,7 +38,7 @@
         if(this.noteTitle === "" || this.noteContent === "") {
           return;
         }
-        var noteData = [this.noteTitle, this.noteContent, new Date()]
+        var noteData = [this.noteTitle, this.noteContent, Date.now()]
         this.$refs.newTextarea.value = ""
         this.$refs.newInput.value = ""
         this.$emit('note-added', noteData)

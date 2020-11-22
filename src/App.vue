@@ -3,7 +3,7 @@
     <div class="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
-      <button class="logout-button">Logout</button>
+      <button class="logout-button" @click="testMethod">Logout</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
         <li v-for="note in sortedNotes" :key="note.dataId">
@@ -21,11 +21,12 @@
     </div>
   </div>
 </template>
-
+<script src="https://www.gstatic.com/firebasejs/8.1.1/firebase-app.js"></script>
 <script>
 import NotesMain from "./components/NotesMain.vue"
 import NotesCreate from "./components/NotesCreate.vue"
 import uniqueId from "lodash.uniqueid"
+import firebase from "./utilities/firebase.js"
 
 export default {
   name: "app",
@@ -35,7 +36,7 @@ export default {
   },
   data() {
     return {
-      currentUser: "hector.vergara416@gmail.com",
+      currentUser: "john_cena@yahoo.com",
       testVar: "",
       Notes: [
         {
@@ -43,28 +44,28 @@ export default {
           dataId: uniqueId(),
           dataTitle: "Does anybody have, a cold beer for Steve Austin?!??!!?",
           dataContent: "I'll open up a can of whoop-ass on you!” “That was the absolute worst catch phrase I've ever heard in the history of Monday Night Raw.” “Last time I had three or four of those I crapped for three days straight!",
-          dataDate: new Date(86400000*14)
+          dataDate: 86400000*5
         },
         {
           dataUser: "john_cena@yahoo.com",
           dataId: uniqueId(),
           dataTitle: "Loyalty",
           dataContent: "When people show loyalty to you, you take care of those who are with you. It's how it goes with everything. If you have a small circle of friends, and one of those friends doesn't stay loyal to you, they don't stay your friend for very long.",
-          dataDate: new Date(0)
+          dataDate: 0
         },
         {
           dataUser: "eddie_guerrero@hotmail.com",
           dataId: uniqueId(),
           dataTitle: "Lie Cheat Steal",
           dataContent: "If you're not cheating, you're not trying",
-          dataDate: new Date(86400000)
+          dataDate: 86400000
         },
         {
           dataUser: "dwayne_johnson@fakewebsite.com",
           dataId: uniqueId(),
           dataTitle: "The Rock Mentality",
           dataContent: "I'll never, ever be full. I'll always be hungry. Obviously, I'm not talking about food. Growing up, I had nothing for such a long time. Someone told me a long time ago, and I've never forgotten it, ‘Once you've ever been hungry, really, really hungry, then you'll never, ever be full.",
-          dataDate: new Date(86400000*7)
+          dataDate: 86400000*7
         },
       ],
     };
@@ -93,19 +94,42 @@ export default {
     // at the same time update the values in it
     updateNotes(updateData) {
       var noteIndex = this.Notes.findIndex((note)=>{
-        return note.dataId === updateData[0] && note.dataUser === updateData[3]
+        return note.dataId === updateData[0] && note.dataUser === updateData[4]
       })
       var newNotes = this.Notes
       newNotes[noteIndex] = {
-        dataUser: updateData[3],
+        dataUser: updateData[4],
         dataId: updateData[0],
         dataTitle: updateData[1],
-        dataContent: updateData[2]
+        dataContent: updateData[2],
+        dataDate: updateData[3]
       }
       // mutating an array doesn't re-render... delete and create a new one
       this.Notes = []
       this.Notes = newNotes
-    }
+    },
+    // testMethod() {
+    //   console.log('Firebase testing...')
+    //   var newNotes = []
+    //   var database = firebase.database()
+    //   // --adding new data in firebase--
+    //   for (var i=0; i<this.Notes.length; i++) {
+    //     console.log(i)
+    //     database.ref('notes').push(this.Notes[i])
+    //   }
+      
+    //   // --retrieving data in database--
+    //   // database.ref('notes').once('value').then(
+    //   //   (snapshot) => {
+    //   //     var databaseNotes = snapshot.val()
+    //   //     console.log(databaseNotes)
+    //   //     var databaseKeys = Object.keys(databaseNotes)
+    //   //     databaseKeys.forEach( (key) => { newNotes.push(databaseNotes[key]) } )
+    //   //     console.log(newNotes)
+    //   //   }
+    //   // )
+
+    // }
   },
   computed: {
     // sorts Notes base on dataDate

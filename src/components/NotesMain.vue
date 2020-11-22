@@ -3,7 +3,7 @@
     <div class="note-title"><strong>{{ noteTitle }}</strong></div>
     <div class="note-content">{{ noteContent }}</div>
     <div class="note-user"><em>by: {{ noteUser }}</em></div>
-    <!-- <div v-if="checkUser"> -->
+    <div v-if="checkUser">
       <div v-if="!initDelete" class="note-buttons">
         <button class="button note-button" @click="onEdit">Edit</button>
         <button class="button note-button delete-button" @click="onDelete">Delete</button>
@@ -11,7 +11,7 @@
       <div v-else>
       <notes-delete @delete-yes="yesDelete" @delete-no="onDelete"></notes-delete>
       </div>
-    <!-- </div> -->
+    </div>
   </div>
   <div v-else class="note-block">
     <notes-edit 
@@ -65,7 +65,9 @@
         // this.noteContent = updateData[2]
         this.$emit('updateNote',updateData)
         this.initEdit = false
-      },
+      }
+    },
+    computed: {
       checkUser() {
         return this.currentUser === this.noteUser
       }
