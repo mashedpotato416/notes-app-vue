@@ -27,6 +27,7 @@
 <script>
   import NotesDelete from "./NotesDelete.vue"
   import NotesEdit from "./NotesEdit.vue"
+  // import firebase from "../utilities/firebase.js"
   export default {
     data() {
       return {
@@ -71,7 +72,26 @@
       checkUser() {
         return this.currentUser === this.noteUser
       }
-    }
+    },
+    // beforeMount() {
+    //   function updateNotesData() {
+    //     console.log('starting...')
+    //     var database = firebase.database()
+    //     database.ref('notes').once('value').then(
+    //     (snapshot) => {
+    //       var databaseNotes = snapshot.val()
+    //       var databaseKeys = Object.keys(databaseNotes)
+    //       databaseKeys.forEach( (key) => {
+    //         var newNotes = []
+    //         newNotes.push(databaseNotes[key])
+    //         console.log(newNotes)
+    //         this.$emit('update-notes-data', newNotes)
+    //       })
+    //     })
+    //   }
+    //   console.log('Hello')
+    //   updateNotesData() 
+    // }
   }  
 </script>
 <style>
