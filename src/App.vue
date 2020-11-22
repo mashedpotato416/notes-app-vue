@@ -4,7 +4,6 @@
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
       <button class="logout-button">Logout</button>
-      <p> {{ testVar }} </p>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
         <li v-for="note in sortByDate(Notes)" :key="note.dataId">
