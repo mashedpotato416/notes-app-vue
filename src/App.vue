@@ -6,12 +6,13 @@
       <button class="logout-button">Logout</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
-        <li v-for="note in sortByDate(Notes)" :key="note.dataId">
+        <li v-for="note in sortedNotes" :key="note.dataId">
           <notes-main 
             :noteUser="note.dataUser" 
             :noteId="note.dataId" 
             :noteTitle="note.dataTitle" 
             :noteContent="note.dataContent"
+            :currentUser="currentUser"
             @deleteId="removeNote"
             @updateNote="updateNotes"> 
           </notes-main>
@@ -42,14 +43,14 @@ export default {
           dataId: uniqueId(),
           dataTitle: "Does anybody have, a cold beer for Steve Austin?!??!!?",
           dataContent: "I'll open up a can of whoop-ass on you!” “That was the absolute worst catch phrase I've ever heard in the history of Monday Night Raw.” “Last time I had three or four of those I crapped for three days straight!",
-          dataDate: new Date(0)
+          dataDate: new Date(86400000*14)
         },
         {
           dataUser: "john_cena@yahoo.com",
           dataId: uniqueId(),
           dataTitle: "Loyalty",
           dataContent: "When people show loyalty to you, you take care of those who are with you. It's how it goes with everything. If you have a small circle of friends, and one of those friends doesn't stay loyal to you, they don't stay your friend for very long.",
-          dataDate: new Date(86400000*14)
+          dataDate: new Date(0)
         },
         {
           dataUser: "eddie_guerrero@hotmail.com",
@@ -104,23 +105,25 @@ export default {
       // mutating an array doesn't re-render... delete and create a new one
       this.Notes = []
       this.Notes = newNotes
-    },
-    sortByDate(noteArray) {
-      var newNotes = noteArray.sort(
-      (firstNote,secondNote) => {
-        if (firstNote.dataDate > secondNote.dataDate) {
-          return -1
-        } else if (firstNote.dataDate < secondNote.dataDate) {
-          return 1
-        } else {
-          return 0
-        }
-      })
-      return newNotes
     }
   },
-  updated() {
-    console.log('Page loaded')
+  computed: {
+    // sorts Notes base on dataDate
+    sortedNotes:
+      function () {
+        var sortedNotes = this.Notes
+        sortedNotes.sort(
+          (firstNote,secondNote) => {
+            if (firstNote.dataDate > secondNote.dataDate) {
+              return -1
+            } else if (firstNote.dataDate < secondNote.dataDate) {
+              return 1
+            } else {
+              return 0
+            }
+          })
+        return sortedNotes
+      }
   }
 };
 </script>
