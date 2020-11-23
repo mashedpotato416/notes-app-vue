@@ -3,7 +3,7 @@ import "firebase/auth";
 import "firebase/database";
 import "firebase/firestore";
 
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyBbFZUWYqqDKOma26u_YFFlfKYA3IWcRSQ",
   authDomain: "notes-app-vue-a42c9.firebaseapp.com",
   databaseURL: "https://notes-app-vue-a42c9.firebaseio.com",

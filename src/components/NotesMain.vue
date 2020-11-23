@@ -72,26 +72,7 @@
       checkUser() {
         return this.currentUser === this.noteUser
       }
-    },
-    // beforeMount() {
-    //   function updateNotesData() {
-    //     console.log('starting...')
-    //     var database = firebase.database()
-    //     database.ref('notes').once('value').then(
-    //     (snapshot) => {
-    //       var databaseNotes = snapshot.val()
-    //       var databaseKeys = Object.keys(databaseNotes)
-    //       databaseKeys.forEach( (key) => {
-    //         var newNotes = []
-    //         newNotes.push(databaseNotes[key])
-    //         console.log(newNotes)
-    //         this.$emit('update-notes-data', newNotes)
-    //       })
-    //     })
-    //   }
-    //   console.log('Hello')
-    //   updateNotesData() 
-    // }
+    }
   }  
 </script>
 <style>

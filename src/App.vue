@@ -3,7 +3,8 @@
     <div class="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
-      <button class="logout-button" @click="testMethod">Logout</button>
+      <button class="logout-button" @click="getFirebaseNotes">Refresh</button>
+      <button class="logout-button" @click="testMethod">Test</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
         <div>
@@ -28,11 +29,9 @@
     </div>
   </div>
 </template>
-<script src="https://www.gstatic.com/firebasejs/8.1.1/firebase-app.js"></script>
 <script>
 import NotesMain from "./components/NotesMain.vue"
 import NotesCreate from "./components/NotesCreate.vue"
-import uniqueId from "lodash.uniqueid"
 import firebase from "./utilities/firebase.js"
 
 export default {
@@ -43,32 +42,100 @@ export default {
   },
   data() {
     return {
-      currentUser: "matt_hardy@youjizz.com",
+      currentUser: "jenny_awesome@gmail.com",
       testVar: "",
-      Notes: []
+      Notes: [],
     };
   },
   methods: {
+    // function to get snapshot of data in firebase
+    getSnapshot() {
+      var database = firebase.database()
+      return database.ref('notes').once('value')
+      .then( (snapshot) => {
+        return snapshot.val()
+      })
+    },
     // function that appends new data from NotesCreate component
     addNote(noteData) {
-      var newData = {
+      var pushIds = []
+      var notesDatabase = {}
+      var currentUserIds = []
+      var newId = ""
+      var newData = {}
+      var database = firebase.database()
+      database.ref('notes').once('value')
+      .then( (snapshot) => {
+        notesDatabase = snapshot.val()
+        return snapshot.val()
+      })
+      // get a list of push() ids
+      .then( (data) => {
+        var dataArray = []
+        var databaseKeys = Object.keys(data)
+        databaseKeys.forEach( (key) => {
+          dataArray.push(data[key])
+        })
+        pushIds = databaseKeys
+      })
+      // create a list of ids of currentUser
+      .then( () => {
+        pushIds.forEach( (pushId) => {
+          if(notesDatabase[pushId].dataUser === this.currentUser){
+            currentUserIds.push(notesDatabase[pushId].dataId)
+          }
+        })
+      })
+      // create a new id
+      .then( () => {
+        var prefix = this.currentUser.slice(0,4) + "-"
+        var countIds = (currentUserIds.length === 0) ? 1 : parseInt(currentUserIds[currentUserIds.length - 1].slice(5), 10) + 1
+        newId = prefix + countIds
+      })
+      // prepare data
+      .then( () => {
+        newData = {
         dataUser: this.currentUser,
-        dataId: uniqueId(),
+        dataId: newId,
         dataTitle: noteData[0],
         dataContent: noteData[1],
         dataDate: noteData[2]
-      }
-      // --adding new data in firebase--
-      var database = firebase.database()
-      database.ref('notes').push(newData)
-    },
-    // function that filters out the matching noteid to delete and
-    // assign the filtered array to replace existing array
-    removeNote(noteId) {
-      var newNotes = this.Notes.filter((note)=>{
-        return note.dataId !== noteId
+        }
       })
-      this.Notes = newNotes
+      // upload to firebase
+      .then( () => {
+        database.ref('notes').push(newData)
+      })
+      .then( () => {
+        this.getFirebaseNotes()
+      })
+    },
+    // function that delete note with specified noteId in the database
+    removeNote(noteId) {
+      var searchId = noteId
+      var database = firebase.database()
+      database.ref('notes').once('value')
+      .then( (snapshot) => {
+        return snapshot.val()
+      })
+      // get which pushId correspond to the note that needs to be deleted
+      .then( (data) => {
+        var databaseKeys = Object.keys(data)
+        var keyToDelete = ""
+        databaseKeys.forEach( (key) => {
+          if(data[key].dataId === searchId) {
+            keyToDelete = key
+          }
+        })
+        return keyToDelete
+      })
+      // remove note corresponding to the searchId
+      .then( (key) => {
+        database.ref('notes/' + key).remove()
+      })
+      .then( () => {
+        this.getFirebaseNotes()
+      })
     },
     // function that gets the index of the Note to update and
     // at the same time update the values in it
@@ -88,75 +155,64 @@ export default {
       this.Notes = []
       this.Notes = newNotes
     },
-    testMethod() {
-      console.log('Firebase testing...')
-      var newNotes = []
+    getFirebaseNotes() {
       var database = firebase.database()
-      // --adding new data in firebase--
-      // for (var i=0; i<this.Notes.length; i++) {
-      //   console.log(i)
-      //   database.ref('notes').push(this.Notes[i])
-      // }
-      
-      // --retrieving data in database--
-      database.ref('notes').once('value').then(
-        (snapshot) => {
-          var databaseNotes = snapshot.val()
-          console.log(databaseNotes)
-          // moving data to Notes
-          var databaseKeys = Object.keys(databaseNotes)
-          databaseKeys.forEach( (key) => { newNotes.push(databaseNotes[key]) } )
-          this.Notes = []
-          this.Notes = newNotes
-        }
-      )
+      return database.ref('notes').once('value')
+      .then( (snapshot) => {
+        return snapshot.val()
+      })
+      .then( (data) => {
+        var dataArray = []
+        var databaseKeys = Object.keys(data)
+        databaseKeys.forEach( (key) => {
+          dataArray.push(data[key])
+        })
+        this.Notes = dataArray
+      })
     },
-    testMethod2() {
-      console.log('Hi')
+    testMethod() {
+      return
     }
   },
   computed: {
-    // sort Notes based on dataDate
-    sortedNotes:
-      function () {
-        var sortedNotes = this.Notes
-        sortedNotes.sort(
-          (firstNote,secondNote) => {
-            if (firstNote.dataDate > secondNote.dataDate) {
-              return -1
-            } else if (firstNote.dataDate < secondNote.dataDate) {
-              return 1
-            } else {
-              return 0
-            }
-          })
-        return sortedNotes
-      }
+    sortedNotes: function () {
+      var sortedArray = this.Notes
+      sortedArray.sort( (firstNote,secondNote) => {
+        if (firstNote.dataDate > secondNote.dataDate) {
+          return -1
+        } else if (firstNote.dataDate < secondNote.dataDate) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+    return sortedArray
+    }
   },
   mounted() {
-      function getNotesData() {
-        var newNotes = []
-        console.log('fetching data from firebase...')
-        var database = firebase.database()
-        database.ref('notes').once('value')
-        .then( (snapshot) => {
-            return snapshot.val()
+    // function that gets data from firebase database
+    function getData() {
+      var database = firebase.database()
+      return database.ref('notes').once('value')
+      .then( (snapshot) => {
+        return snapshot.val()
+      })
+      .then( (data) => {
+        var dataArray = []
+        var databaseKeys = Object.keys(data)
+        databaseKeys.forEach( (key) => {
+          dataArray.push(data[key])
         })
-        .then( (data) => {
-            var databaseKeys = []
-            // var newNotes = []
-            databaseKeys = Object.keys(data)
-            databaseKeys.forEach( (key) => {
-              newNotes.push(data[key])
-            })
-            // return newNotes
-        })
-        return newNotes
-      }
+        return dataArray
+      })
+    }
+    
+    // update data once we get firebase response
+    getData().then( (dataArray) => {
+      this.Notes = dataArray
+    })
 
-      this.Notes = getNotesData()
-      setInterval( () => { this.Notes = getNotesData() }, 30000)
-  }
+  }  
 };
 </script>
 
