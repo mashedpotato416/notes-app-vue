@@ -1,10 +1,12 @@
 <template>
   <div id="app">
-    <div class="container">
+    <notes-login v-if="!loggedIn" @logged-in="logIn"></notes-login>
+    <div class="container" ref="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
       <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="testMethod">Test</button>
+      <button class="logout-button" @click="logout">Logout</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
         <div>
@@ -32,6 +34,7 @@
 <script>
 import NotesMain from "./components/NotesMain.vue"
 import NotesCreate from "./components/NotesCreate.vue"
+import NotesLogin from "./components/NotesLogin.vue"
 import firebase from "./utilities/firebase.js"
 
 export default {
@@ -39,15 +42,36 @@ export default {
   components: {
     NotesMain,
     NotesCreate,
+    NotesLogin
   },
   data() {
     return {
-      currentUser: "jenny_awesome@gmail.com",
-      testVar: "",
+      currentUser: "",
       Notes: [],
+      loggedIn: false
     };
   },
+  computed: {
+    sortedNotes: function () {
+      var sortedArray = this.Notes
+      sortedArray.sort( (firstNote,secondNote) => {
+        if (firstNote.dataDate > secondNote.dataDate) {
+          return -1
+        } else if (firstNote.dataDate < secondNote.dataDate) {
+          return 1
+        } else {
+          return 0
+        }
+      })
+    return sortedArray
+    },
+  },
   methods: {
+    logIn(user) {
+      this.loggedIn = true
+      this.currentUser = user
+      this.$refs.container.style.opacity = 1
+    },
     // function to get snapshot of data in firebase
     getSnapshotFirebase() {
       return firebase.database().ref('notes').once('value')
@@ -160,22 +184,17 @@ export default {
       .then( this.RefreshNotes )
     },
     testMethod() {
-      this.getSnapshot().then( this.RefreshNotes )
-    }
-  },
-  computed: {
-    sortedNotes: function () {
-      var sortedArray = this.Notes
-      sortedArray.sort( (firstNote,secondNote) => {
-        if (firstNote.dataDate > secondNote.dataDate) {
-          return -1
-        } else if (firstNote.dataDate < secondNote.dataDate) {
-          return 1
-        } else {
-          return 0
-        }
+      if (firebase.auth().currentUser === null) {
+        console.log('okay')
+      } else {
+        console.log('not okay')
+      }
+    },
+    logout() {
+      firebase.auth().signOut().then( () => {
+        this.loggedIn = false
+        location.reload()
       })
-    return sortedArray
     }
   },
   mounted() {
@@ -206,16 +225,15 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: "Source Sans Pro", sans-serif;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 textarea, input {
   font-family: "Source Sans Pro", sans-serif;
   font-size: 0.9em;
 }
 .container {
+  opacity: 0.1;
+  font-family: "Source Sans Pro", sans-serif;
+  color: #2c3e50;
+  margin-top: 60px;
   margin: auto;
   width: 70%;
   border: 3px solid #4bf8f8;
