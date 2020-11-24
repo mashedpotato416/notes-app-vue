@@ -3,7 +3,7 @@
     <div class="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
-      <button class="logout-button" @click="getFirebaseNotes">Refresh</button>
+      <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="testMethod">Test</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
@@ -49,28 +49,49 @@ export default {
   },
   methods: {
     // function to get snapshot of data in firebase
-    getSnapshot() {
-      var database = firebase.database()
-      return database.ref('notes').once('value')
+    getSnapshotFirebase() {
+      return firebase.database().ref('notes').once('value')
       .then( (snapshot) => {
         return snapshot.val()
       })
+    },
+    RefreshNotes() {
+      this.getSnapshotFirebase()
+      .then( (data) => {
+        var dataArray = []
+        var databaseKeys = Object.keys(data)
+        databaseKeys.forEach( (key) => {
+          dataArray.push(data[key])
+        })
+        this.Notes = dataArray
+      })
+    },
+    getFirebasePushId(snapshot, searchId) {
+      var databasePushIds = Object.keys(snapshot)
+      var notePushId = ""
+      databasePushIds.forEach( (pushId) => {
+        if(snapshot[pushId].dataId === searchId) {
+          notePushId = pushId
+        }
+      })
+      return notePushId
     },
     // function that appends new data from NotesCreate component
     addNote(noteData) {
       var pushIds = []
       var notesDatabase = {}
       var currentUserIds = []
-      var newId = ""
-      var newData = {}
-      var database = firebase.database()
-      database.ref('notes').once('value')
-      .then( (snapshot) => {
-        notesDatabase = snapshot.val()
-        return snapshot.val()
-      })
+      var newData = {
+        dataUser: this.currentUser,
+        dataId: "",
+        dataTitle: noteData[0],
+        dataContent: noteData[1],
+        dataDate: noteData[2]
+      }
+      this.getSnapshotFirebase()
       // get a list of push() ids
       .then( (data) => {
+        notesDatabase = data
         var dataArray = []
         var databaseKeys = Object.keys(data)
         databaseKeys.forEach( (key) => {
@@ -90,88 +111,56 @@ export default {
       .then( () => {
         var prefix = this.currentUser.slice(0,4) + "-"
         var countIds = (currentUserIds.length === 0) ? 1 : parseInt(currentUserIds[currentUserIds.length - 1].slice(5), 10) + 1
-        newId = prefix + countIds
-      })
-      // prepare data
-      .then( () => {
-        newData = {
-        dataUser: this.currentUser,
-        dataId: newId,
-        dataTitle: noteData[0],
-        dataContent: noteData[1],
-        dataDate: noteData[2]
-        }
+        var newId = prefix + countIds
+        return newId
       })
       // upload to firebase
-      .then( () => {
-        database.ref('notes').push(newData)
+      .then( (newId) => {
+        //set dataId to the Id created
+        newData.dataId = newId
+        firebase.database().ref('notes').push(newData)
       })
-      .then( () => {
-        this.getFirebaseNotes()
-      })
+      .then( this.RefreshNotes )
     },
     // function that delete note with specified noteId in the database
     removeNote(noteId) {
       var searchId = noteId
-      var database = firebase.database()
-      database.ref('notes').once('value')
-      .then( (snapshot) => {
-        return snapshot.val()
-      })
+      this.getSnapshotFirebase()
       // get which pushId correspond to the note that needs to be deleted
-      .then( (data) => {
-        var databaseKeys = Object.keys(data)
-        var keyToDelete = ""
-        databaseKeys.forEach( (key) => {
-          if(data[key].dataId === searchId) {
-            keyToDelete = key
-          }
-        })
-        return keyToDelete
+      .then( (snapshot) => {
+        var pushId = this.getFirebasePushId(snapshot, searchId)
+        return pushId 
       })
-      // remove note corresponding to the searchId
-      .then( (key) => {
-        database.ref('notes/' + key).remove()
+      // remove note with pushId that corresponds to the searchId
+      .then( (pushId) => {
+        firebase.database().ref('notes/' + pushId).remove()
       })
-      .then( () => {
-        this.getFirebaseNotes()
-      })
+      .then( this.RefreshNotes )
     },
-    // function that gets the index of the Note to update and
-    // at the same time update the values in it
+    // function that appends update in the database
     updateNotes(updateData) {
-      var noteIndex = this.Notes.findIndex((note)=>{
-        return note.dataId === updateData[0] && note.dataUser === updateData[4]
-      })
-      var newNotes = this.Notes
-      newNotes[noteIndex] = {
+      var searchId = updateData[0]
+      var noteUpdates = {
         dataUser: updateData[4],
         dataId: updateData[0],
         dataTitle: updateData[1],
         dataContent: updateData[2],
         dataDate: updateData[3]
       }
-      // mutating an array doesn't re-render... delete and create a new one
-      this.Notes = []
-      this.Notes = newNotes
-    },
-    getFirebaseNotes() {
-      var database = firebase.database()
-      return database.ref('notes').once('value')
+      
+      this.getSnapshotFirebase()
+      // get which pushId correspond to the note that needs to be deleted
       .then( (snapshot) => {
-        return snapshot.val()
+        var pushId = this.getFirebasePushId(snapshot, searchId)
+        return pushId 
       })
-      .then( (data) => {
-        var dataArray = []
-        var databaseKeys = Object.keys(data)
-        databaseKeys.forEach( (key) => {
-          dataArray.push(data[key])
-        })
-        this.Notes = dataArray
+      .then( (pushId) => {
+        firebase.database().ref('notes/' + pushId).update(noteUpdates)
       })
+      .then( this.RefreshNotes )
     },
     testMethod() {
-      return
+      this.getSnapshot().then( this.RefreshNotes )
     }
   },
   computed: {
