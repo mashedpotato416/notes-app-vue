@@ -101,14 +101,14 @@
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
-    margin: 2px 2px;
+    margin: 5px 5px;
     cursor: pointer;
-    width: 20%;
+    width: 18%;
     height: 30px;
     background-color: #ffffff;
     border-radius: 12px;
     text-transform: uppercase;
-    font-size: 0.75em;
+    font-size: 0.7em;
   }
   .note-buttons {
     padding: 8px;

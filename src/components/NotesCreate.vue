@@ -2,23 +2,27 @@
   <div class="new-block">
     <div class="new-title">
       <label for="newTitle"><strong>Title:</strong></label><br>
-      <input 
-        type="text" 
-        id="newTitle" 
-        v-model.lazy.trim="noteTitle" 
-        size="50"
-        ref="newInput">
+      <div class="flex">
+        <input 
+          type="text"
+          class="flex1" 
+          id="newTitle" 
+          v-model.lazy.trim="noteTitle" 
+          ref="newInput">
+      </div>
     </div>
     <br>
     <div class="new-content">
       <label for="newContent"><strong>Content:</strong></label><br>
-      <textarea 
-        id="newContent" 
-        rows="7" 
-        cols="52" 
-        v-model.lazy.trim="noteContent"
-        ref="newTextarea">
-      </textarea>
+      <div class="flex">
+        <textarea
+          class="flex1" 
+          id="newContent" 
+          rows="7"  
+          v-model.lazy.trim="noteContent"
+          ref="newTextarea">
+        </textarea>
+      </div>
     </div>
     <div class="note-buttons">
       <button class="button note-button" @click="onAdd">Add</button>
@@ -63,5 +67,11 @@
     background-color: red !important;
     border-color: red !important;
     color: #ffffff !important;
+  }
+  .flex {
+    display: flex;
+  }
+  .flex1 {
+    flex: 1
   }
 </style>
