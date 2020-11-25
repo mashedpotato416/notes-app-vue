@@ -1,7 +1,7 @@
 <template>
   <div class="fill">
     <div class="login-popup">
-      <div class="welcome-message"> <strong> Welcome to Notes App! </strong> </div>
+      <div class="welcome-message"> <strong> Notes App </strong> </div>
       <div class="login-message"> Choose log in method to proceed </div>
       <div id="firebaseui-auth-container"></div>
       <div id="loader"></div>
