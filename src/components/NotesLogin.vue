@@ -1,7 +1,8 @@
 <template>
   <div class="fill">
     <div class="login-popup">
-      <p> Welcome to Notes App </p>
+      <div class="welcome-message"> <strong> Welcome to Notes App! </strong> </div>
+      <div class="login-message"> Choose log in method to proceed </div>
       <div id="firebaseui-auth-container"></div>
       <div id="loader"></div>
     </div>
@@ -27,11 +28,12 @@ export default {
       signInSuccessUrl: 'http://localhost:8080/',
       signInOptions: [
         // Leave the lines as is for the providers you want to offer your users.
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         {
           provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
           requireDisplayname: false
-        }
+        },
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.GithubAuthProvider.PROVIDER_ID
       ]
     }
     var ui = new firebaseui.auth.AuthUI(firebase.auth());
@@ -50,11 +52,35 @@ export default {
   height: 100%;
   width: 100%;
   z-index: 20;
-  background-color: #00bcd4a6;
+  background-color: #00bcd454;
   opacity: 1
 }
-.center{
+.center {
   display: flex;
+}
+.login-popup {
+  background-color: white;
+  position: fixed;
+  width: 50%;
+  height: 60%;
+  top: 17.5%;
+  left: 25%;
+  border-radius: 25px;
+}
+.welcome-message {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 2em;
+  text-align: center;
+  padding: 5px;
+  margin: 50px 20px 20px 20px;
+}
+.login-message {
+  font-family: "Source Sans Pro", sans-serif;
+  font-size: 1em;
+  text-align: center;
+  padding: 5px;
+  margin: 60px 10px 25px 10px;
+  text-transform: uppercase;
 }
 /*************** LOADER ******************/
 #loader {
@@ -72,5 +98,6 @@ export default {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/*****************************************/
   
 </style>
