@@ -5,7 +5,6 @@
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
       <button class="logout-button" @click="RefreshNotes">Refresh</button>
-      <button class="logout-button" @click="testMethod">Test</button>
       <button class="logout-button" @click="logout">Logout</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
@@ -182,13 +181,6 @@ export default {
         firebase.database().ref('notes/' + pushId).update(noteUpdates)
       })
       .then( this.RefreshNotes )
-    },
-    testMethod() {
-      if (firebase.auth().currentUser === null) {
-        console.log('okay')
-      } else {
-        console.log('not okay')
-      }
     },
     logout() {
       firebase.auth().signOut().then( () => {
