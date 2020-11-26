@@ -1,11 +1,12 @@
 <template>
   <div id="app">
-    <notes-login v-if="!loggedIn" @logged-in="logIn"></notes-login>
+    <notes-login v-if="false" @logged-in="logIn"></notes-login>
     <div class="container" ref="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
       <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="logout">Logout</button>
+      <button class="logout-button" @click="testMethod">Test</button>
       <ul>
         <li><notes-create @note-added="addNote"></notes-create></li>
         <div>
@@ -45,7 +46,7 @@ export default {
   },
   data() {
     return {
-      currentUser: "",
+      currentUser: "sample@yahoo.com",
       Notes: [],
       loggedIn: false
     };
@@ -66,6 +67,29 @@ export default {
     },
   },
   methods: {
+    testMethod() {
+      this.getSnapshotFirebase()
+      // get which pushId correspond to the note that needs to be deleted
+      .then( (data) => {
+        var convertedList = []
+        Object.keys(data).forEach( (keys) => {
+          convertedList.push(data[keys])
+        })
+        return convertedList
+      })
+      .then( (array) => {
+        array.sort( (firstNote,secondNote) => {
+          if (firstNote.dataDate > secondNote.dataDate) {
+            return -1
+          } else if (firstNote.dataDate < secondNote.dataDate) {
+            return 1
+          } else {
+            return 0
+          }
+        })
+        return array
+      })
+    },
     logIn(user) {
       this.loggedIn = true
       this.currentUser = user
