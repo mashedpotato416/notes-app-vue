@@ -31,17 +31,17 @@
   export default {
     data() {
       return {
-        editId:"",
-        editTitle:"",
-        editContent:"",
-        editUser:""
+        editId: "",
+        editTitle: "",
+        editContent: "",
+        editUser: ""
       }
     },
     props: {
       existId: { type: String },
       existTitle: { type: String },
       existContent: { type: String },
-      existUser: { type: String },
+      existUser: { type: String }
     },
     mounted() {
       // fill up form with existing data
@@ -54,18 +54,18 @@
       this.editContent = this.existContent
     },
     methods: {
-      onCancel() {
+      onCancel () {
         this.$emit('edit-cancel')
       },
       // function to get snapshot of data in firebase
-      getSnapshotFirebase() {
+      getSnapshotFirebase () {
         return firebase.database().ref('notes').once('value')
         .then( (snapshot) => {
           return snapshot.val()
         })
       },
       // function to get a pushID that match the searchID
-      getFirebasePushId(snapshot, searchId) {
+      getFirebasePushId (snapshot, searchId) {
         var databasePushIds = Object.keys(snapshot)
         var notePushId = ""
         databasePushIds.forEach( (pushId) => {
@@ -76,7 +76,7 @@
         return notePushId
       },
       // function that appends update in the database
-      onSave() {
+      onSave () {
         // prepare data
         var searchId = this.existId
         var noteUpdates = {
@@ -102,6 +102,7 @@
       }
     }
   }
+  
 </script>
 <style>
   .edit-flex > div {

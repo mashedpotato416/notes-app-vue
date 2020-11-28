@@ -30,21 +30,21 @@
   </div>
 </template>
 <script>
-import firebase from "../utilities/firebase.js"
+  import firebase from "../utilities/firebase.js"
   export default {
     props: {
       currentUser : { type: String }
     },
     data() {
       return {
-        noteTitle:"",
-        noteContent:""
+        noteTitle: "",
+        noteContent: ""
       }
     },
     methods: {
-      onAdd() {
+      onAdd () {
         // validate user input
-        if(this.noteTitle === "" || this.noteContent === "") {
+        if (this.noteTitle === "" || this.noteContent === "") {
           return;
         }
         // prepare data
@@ -101,6 +101,7 @@ import firebase from "../utilities/firebase.js"
       }
     }
   }
+  
 </script>
 <style>
 /* button styling in NotesMain.vue */

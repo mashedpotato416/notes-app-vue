@@ -50,28 +50,26 @@
       },
     methods: {
       //function to toggle delete view
-      onDelete() {
+      onDelete () {
         this.initDelete = !this.initDelete
       },
       //function to toggle edit view
-      onEdit() {
+      onEdit () {
         this.initEdit = !this.initEdit
       },
-      //function to toggle delete view and emit
-      yesDelete() {
-        // toggle
+      //function to toggle delete view and emit signal to refresh
+      yesDelete () {
         this.initDelete = !this.initDelete
-        // emit
         this.$emit('refresh')
       },
-      //function to toggle edit view and emit new data
-      saveEdit() {
+      //function to toggle edit view and emit signal to refresh
+      saveEdit () {
         this.initEdit = false
         this.$emit('refresh')
       }
     },
     computed: {
-      checkUser() {
+      checkUser () {
         return this.currentUser === this.noteUser
       }
     }
@@ -125,5 +123,4 @@
     border-color: red !important;
     color: #ffffff !important;
   }
-
 </style>

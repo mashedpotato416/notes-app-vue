@@ -9,38 +9,40 @@
   </div>
 </template>
 <script>
-import firebase from "../utilities/firebase.js"
-import * as firebaseui from 'firebaseui'
-import 'firebaseui/dist/firebaseui.css'
+  import firebase from "../utilities/firebase.js"
+  import * as firebaseui from 'firebaseui'
+  import 'firebaseui/dist/firebaseui.css'
 
-export default {
-  mounted() {
-    var uiConfig = {
-      callbacks: {
-        signInSuccessWithAuthResult: (authResult) => {
-          this.$emit('logged-in',authResult.user.email)
-        return false;
+  export default {
+    
+    mounted() {
+      var uiConfig = {
+        callbacks: {
+          // user data is extracted here
+          signInSuccessWithAuthResult: (authResult) => {
+            this.$emit('logged-in',authResult.user.email)
+            return false
+          },
+          // function that fires when UI render is ready
+          uiShown: function () {
+            document.getElementById('loader').style.display = 'none';
+          }
         },
-        uiShown: function() {
-          document.getElementById('loader').style.display = 'none';
-        }
-      },
-      signInSuccessUrl: 'http://localhost:8080/',
-      signInOptions: [
-        // Leave the lines as is for the providers you want to offer your users.
-        {
-          provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-          requireDisplayname: false
-        },
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.GithubAuthProvider.PROVIDER_ID
-      ]
+        signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
+        // sign in options from firebase
+        signInOptions: [
+          {
+            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            requireDisplayname: false
+          },
+          firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+          firebase.auth.GithubAuthProvider.PROVIDER_ID
+        ]
+      }
+      var ui = new firebaseui.auth.AuthUI(firebase.auth())
+      ui.start('#firebaseui-auth-container', uiConfig)
     }
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
-    ui.start('#firebaseui-auth-container', uiConfig)
-
-  }
-}  
+  }  
 </script>
 <style>
 .fill {

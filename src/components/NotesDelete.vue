@@ -13,25 +13,25 @@
     },
     methods: {
       // function to get snapshot of data in firebase
-      getSnapshotFirebase() {
+      getSnapshotFirebase () {
         return firebase.database().ref('notes').once('value')
         .then( (snapshot) => {
           return snapshot.val()
         })
       },
       // function to get a pushID that match the searchID
-      getFirebasePushId(snapshot, searchId) {
+      getFirebasePushId (snapshot, searchId) {
         var databasePushIds = Object.keys(snapshot)
         var notePushId = ""
         databasePushIds.forEach( (pushId) => {
-          if(snapshot[pushId].dataId === searchId) {
+          if (snapshot[pushId].dataId === searchId) {
             notePushId = pushId
           }
         })
         return notePushId
       },
       //function to toggle delete view and emit noteid to delete
-      deleteYes() {
+      deleteYes () {
         var searchId = this.noteId
         this.getSnapshotFirebase()
         // get which pushId correspond to the note that needs to be deleted
@@ -54,7 +54,8 @@
         this.$emit('delete-no')
       },
     }
-  }  
+  }
+    
 </script>
 <style>
   .button {
