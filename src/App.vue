@@ -35,97 +35,87 @@
   </div>
 </template>
 <script>
-import NotesMain from "./components/NotesMain.vue"
-import NotesCreate from "./components/NotesCreate.vue"
-import NotesLogin from "./components/NotesLogin.vue"
-import firebase from "./utilities/firebase.js"
+  import NotesMain from "./components/NotesMain.vue"
+  import NotesCreate from "./components/NotesCreate.vue"
+  import NotesLogin from "./components/NotesLogin.vue"
+  import firebase from "./utilities/firebase.js"
 
-export default {
-  name: "app",
-  components: {
-    NotesMain,
-    NotesCreate,
-    NotesLogin
-  },
-  data() {
-    return {
-      currentUser: "sample@yahoo.com",
-      Notes: null,
-      loggedIn: false
-    };
-  },
-  computed: {
-    sortedNotes: function () {
-      var data = this.Notes
-      var sortedList = []
-        Object.keys(data).forEach( (keys) => {
-          sortedList.push(data[keys])
-        })
-      sortedList.sort( (firstNote,secondNote) => {
-          if (firstNote.dataDate > secondNote.dataDate) {
-            return -1
-          } else if (firstNote.dataDate < secondNote.dataDate) {
-            return 1
-          } else {
-            return 0
-          }
-        })
-      return sortedList
-    }
-  },
-  methods: {
-    // For testing purposes:
-    // testMethod() {
-    //   var test = ""
-    //   firebase.database().ref('notes').once('value')
-    //   .then( (snapshot) => {
-    //     return snapshot.val()
-    //   })
-    //   .then( (data) => {
-    //     console.log(data)
-    //     return data
-    //   })
-    //   .then( (data) => {
-    //     test = data
-    //     console.log(test)
-    //   })
-    // },
-    // function that login the user and close the login popup
-    logIn(user) {
-      this.loggedIn = true
-      this.currentUser = user
-      this.$refs.container.style.opacity = 1
+  export default {
+    name: "app",
+    components: {
+      NotesMain,
+      NotesCreate,
+      NotesLogin
     },
-    // function to get snapshot of data in firebase
-    getSnapshotFirebase() {
-      return firebase.database().ref('notes').once('value')
+    data() {
+      return {
+        currentUser: "sample@yahoo.com",
+        Notes: null,
+        loggedIn: false
+      };
+    },
+    computed: {
+      sortedNotes: function () {
+        var data = this.Notes
+        var sortedList = []
+          Object.keys(data).forEach( (keys) => {
+            sortedList.push(data[keys])
+          })
+        sortedList.sort((firstNote,secondNote) => {
+            if (firstNote.dataDate > secondNote.dataDate) {
+              return -1
+            } else if (firstNote.dataDate < secondNote.dataDate) {
+              return 1
+            } else {
+              return 0
+            }
+          })
+        return sortedList
+      }
+    },
+    methods: {
+      // // method for testing
+      // testMethod() {
+        
+      // },
+      // function that login the user and close the login popup
+      logIn (user) {
+        this.loggedIn = true
+        this.currentUser = user
+        this.$refs.container.style.opacity = 1
+      },
+      // function to get snapshot of data in firebase
+      getSnapshotFirebase () {
+        return firebase.database().ref('notes').once('value')
+        .then( (snapshot) => {
+          return snapshot.val()
+        })
+      },
+      // function to fetch updates from firebase to Notes
+      RefreshNotes () {
+        this.getSnapshotFirebase()
+        .then( (data) => {
+          this.Notes = data
+        })
+      },
+      // function to log user out
+      logout () {
+        firebase.auth().signOut().then( () => {
+          this.loggedIn = false
+          location.reload()
+        })
+      }
+    },
+    mounted () {
+      // get data for Notes
+      var database = firebase.database()
+      return database.ref('notes').once('value')
       .then( (snapshot) => {
-        return snapshot.val()
+        this.Notes = snapshot.val()
       })
-    },
-    // function to fetch updates from firebase to Notes
-    RefreshNotes() {
-      this.getSnapshotFirebase()
-      .then( (data) => {
-        this.Notes = data
-      })
-    },
-    logout() {
-      firebase.auth().signOut().then( () => {
-        this.loggedIn = false
-        location.reload()
-      })
-    }
-  },
-  mounted() {
-    // get data for Notes
-    var database = firebase.database()
-    return database.ref('notes').once('value')
-    .then( (snapshot) => {
-      this.Notes = snapshot.val()
-    })
-  }  
-};
+    }  
+  }
+  
 </script>
 
 <style>
