@@ -30,7 +30,11 @@
   </div>
 </template>
 <script>
+import firebase from "../utilities/firebase.js"
   export default {
+    props: {
+      currentUser : { type: String }
+    },
     data() {
       return {
         noteTitle:"",
@@ -39,13 +43,61 @@
     },
     methods: {
       onAdd() {
+        // validate user input
         if(this.noteTitle === "" || this.noteContent === "") {
           return;
         }
-        var noteData = [this.noteTitle, this.noteContent, Date.now()]
-        this.$refs.newTextarea.value = ""
-        this.$refs.newInput.value = ""
-        this.$emit('note-added', noteData)
+        // prepare data
+        var pushIds = []
+        var notesDatabase = {}
+        var currentUserIds = []
+        var newData = {
+          dataUser: this.currentUser,
+          dataId: "",
+          dataTitle: this.noteTitle,
+          dataContent: this.noteContent,
+          dataDate: Date.now()
+        }
+        firebase.database().ref('notes').once('value')
+        .then( (snapshot) => {
+          return snapshot.val()
+        })
+        // get a list of push() ids
+        .then( (data) => {
+          notesDatabase = data
+          var dataArray = []
+          var databaseKeys = Object.keys(data)
+          databaseKeys.forEach( (key) => {
+            dataArray.push(data[key])
+          })
+          pushIds = databaseKeys
+        })
+        // create a list of ids of currentUser
+        .then( () => {
+          pushIds.forEach( (pushId) => {
+            if(notesDatabase[pushId].dataUser === this.currentUser){
+              currentUserIds.push(notesDatabase[pushId].dataId)
+            }
+          })
+        })
+        // create a new id
+        .then( () => {
+          var prefix = this.currentUser.slice(0,4) + "-"
+          var countIds = (currentUserIds.length === 0) ? 1 : parseInt(currentUserIds[currentUserIds.length - 1].slice(5), 10) + 1
+          var newId = prefix + countIds
+          return newId
+        })
+        // upload to firebase
+        .then( (newId) => {
+          //set dataId to the Id created
+          newData.dataId = newId
+          firebase.database().ref('notes').push(newData)
+        })
+        .then( () => {
+          this.$refs.newTextarea.value = ""
+          this.$refs.newInput.value = ""
+          this.$emit('note-added')
+        })
       }
     }
   }

@@ -9,7 +9,10 @@
       <!-- For testing purposes:
       <button class="logout-button" @click="testMethod">Test</button> -->
       <ul>
-        <li><notes-create @note-added="addNote"></notes-create></li>
+        <li><notes-create 
+              @note-added="RefreshNotes"
+              :currentUser="currentUser">
+            </notes-create></li>
         <div>
           <li v-for="note in sortedNotes" :key="note.dataId">
             <notes-main 
@@ -105,54 +108,6 @@ export default {
         }
       })
       return notePushId
-    },
-    // function that uploads data to firebase and update Notes
-    addNote(noteData) {
-      var pushIds = []
-      var notesDatabase = {}
-      var currentUserIds = []
-      // prepare data
-      var newData = {
-        dataUser: this.currentUser,
-        dataId: "",
-        dataTitle: noteData[0],
-        dataContent: noteData[1],
-        dataDate: noteData[2]
-      }
-      this.getSnapshotFirebase()
-      // get a list of push() ids
-      .then( (data) => {
-        notesDatabase = data
-        var dataArray = []
-        var databaseKeys = Object.keys(data)
-        databaseKeys.forEach( (key) => {
-          dataArray.push(data[key])
-        })
-        pushIds = databaseKeys
-      })
-      // create a list of ids of currentUser
-      .then( () => {
-        pushIds.forEach( (pushId) => {
-          if(notesDatabase[pushId].dataUser === this.currentUser){
-            currentUserIds.push(notesDatabase[pushId].dataId)
-          }
-        })
-      })
-      // create a new id
-      .then( () => {
-        var prefix = this.currentUser.slice(0,4) + "-"
-        var countIds = (currentUserIds.length === 0) ? 1 : parseInt(currentUserIds[currentUserIds.length - 1].slice(5), 10) + 1
-        var newId = prefix + countIds
-        return newId
-      })
-      // upload to firebase
-      .then( (newId) => {
-        //set dataId to the Id created
-        newData.dataId = newId
-        firebase.database().ref('notes').push(newData)
-      })
-      // refresh
-      .then( this.RefreshNotes )
     },
     // function that delete the note that match noteId
     removeNote(noteId) {
