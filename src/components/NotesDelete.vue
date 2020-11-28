@@ -6,14 +6,53 @@
   </div>
 </template>
 <script>
+  import firebase from "../utilities/firebase.js"
   export default {
+    props: {
+      noteId: { type: String }
+    },
     methods: {
+      // function to get snapshot of data in firebase
+      getSnapshotFirebase() {
+        return firebase.database().ref('notes').once('value')
+        .then( (snapshot) => {
+          return snapshot.val()
+        })
+      },
+      // function to get a pushID that match the searchID
+      getFirebasePushId(snapshot, searchId) {
+        var databasePushIds = Object.keys(snapshot)
+        var notePushId = ""
+        databasePushIds.forEach( (pushId) => {
+          if(snapshot[pushId].dataId === searchId) {
+            notePushId = pushId
+          }
+        })
+        return notePushId
+      },
+      //function to toggle delete view and emit noteid to delete
       deleteYes() {
-        this.$emit('delete-yes')
+        var searchId = this.noteId
+        this.getSnapshotFirebase()
+        // get which pushId correspond to the note that needs to be deleted
+        .then( (snapshot) => {
+          var pushId = this.getFirebasePushId(snapshot, searchId)
+          return pushId 
+        })
+        // remove note with pushId that corresponds to the searchId
+        .then( (pushId) => {
+          firebase.database().ref('notes/' + pushId).remove()
+        })
+        .then( () => {
+          // toggle
+          this.initDelete = !this.initDelete
+          // emit
+          this.$emit('delete-yes')
+        })
       },
       deleteNo() {
         this.$emit('delete-no')
-      }
+      },
     }
   }  
 </script>

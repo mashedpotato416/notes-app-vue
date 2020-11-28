@@ -6,14 +6,19 @@
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
       <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="logout">Logout</button>
-      <!-- For testing purposes:
-      <button class="logout-button" @click="testMethod">Test</button> -->
+      <!-- For testing purposes: -->
+      <button class="logout-button" @click="testMethod">Test</button>
       <ul>
         <li><notes-create 
               @note-added="RefreshNotes"
               :currentUser="currentUser">
             </notes-create></li>
-        <div>
+        <div v-if="Notes === null">
+          <li class="no-data">
+            <strong>No notes are posted at the moment.</strong>
+          </li>
+        </div>
+        <div v-else>
           <li v-for="note in sortedNotes" :key="note.dataId">
             <notes-main 
               :noteUser="note.dataUser" 
@@ -21,14 +26,9 @@
               :noteTitle="note.dataTitle" 
               :noteContent="note.dataContent"
               :currentUser="currentUser"
-              @deleteId="removeNote"
+              @deleteId="RefreshNotes"
               @updateNote="updateNotes"> 
             </notes-main>
-          </li>
-        </div>
-        <div v-if="Notes.length === 0">
-          <li class="no-data">
-            <strong>No notes are posted at the moment.</strong>
           </li>
         </div>
       </ul>
@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       currentUser: "sample@yahoo.com",
-      Notes: {},
+      Notes: null,
       loggedIn: false
     };
   },
@@ -76,8 +76,21 @@ export default {
   },
   methods: {
     // For testing purposes:
-    // // testMethod() {
-    // // },
+    testMethod() {
+      var test = ""
+      firebase.database().ref('notes').once('value')
+      .then( (snapshot) => {
+        return snapshot.val()
+      })
+      .then( (data) => {
+        console.log(data)
+        return data
+      })
+      .then( (data) => {
+        test = data
+        console.log(test)
+      })
+    },
     // function that login the user and close the login popup
     logIn(user) {
       this.loggedIn = true
@@ -109,22 +122,6 @@ export default {
       })
       return notePushId
     },
-    // function that delete the note that match noteId
-    removeNote(noteId) {
-      var searchId = noteId
-      this.getSnapshotFirebase()
-      // get which pushId correspond to the note that needs to be deleted
-      .then( (snapshot) => {
-        var pushId = this.getFirebasePushId(snapshot, searchId)
-        return pushId 
-      })
-      // remove note with pushId that corresponds to the searchId
-      .then( (pushId) => {
-        firebase.database().ref('notes/' + pushId).remove()
-      })
-      // refresh
-      .then( this.RefreshNotes )
-    },
     // function that appends update in the database
     updateNotes(updateData) {
       var searchId = updateData[0]
@@ -136,7 +133,6 @@ export default {
         dataContent: updateData[2],
         dataDate: updateData[3]
       }
-      
       this.getSnapshotFirebase()
       // get which pushId correspond to the note that needs to be deleted
       .then( (snapshot) => {

@@ -62,11 +62,11 @@ import firebase from "../utilities/firebase.js"
         .then( (snapshot) => {
           return snapshot.val()
         })
-        // get a list of push() ids
+        // check if null then get a list of push() ids
         .then( (data) => {
-          notesDatabase = data
+          notesDatabase = data !== null ? data : {}
           var dataArray = []
-          var databaseKeys = Object.keys(data)
+          var databaseKeys = Object.keys(notesDatabase)
           databaseKeys.forEach( (key) => {
             dataArray.push(data[key])
           })

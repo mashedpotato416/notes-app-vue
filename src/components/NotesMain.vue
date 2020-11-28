@@ -9,7 +9,10 @@
         <button class="button note-button delete-button" @click="onDelete">Delete</button>
       </div>
       <div v-else>
-      <notes-delete @delete-yes="yesDelete" @delete-no="onDelete"></notes-delete>
+      <notes-delete
+        :noteId="noteId"
+        @delete-yes="yesDelete" 
+        @delete-no="onDelete"></notes-delete>
       </div>
     </div>
   </div>
@@ -27,7 +30,6 @@
 <script>
   import NotesDelete from "./NotesDelete.vue"
   import NotesEdit from "./NotesEdit.vue"
-  // import firebase from "../utilities/firebase.js"
   export default {
     data() {
       return {
@@ -51,14 +53,16 @@
       onDelete() {
         this.initDelete = !this.initDelete
       },
-      //function to toggle delete view and emit noteid to delete
-      yesDelete() {
-        this.$emit('deleteId',this.noteId)
-        this.initDelete = !this.initDelete
-      },
       //function to toggle edit view
       onEdit() {
         this.initEdit = !this.initEdit
+      },
+      //function to toggle delete view and emit
+      yesDelete() {
+        // toggle
+        this.initDelete = !this.initDelete
+        // emit
+        this.$emit('deleteId')
       },
       //function to toggle edit view and emit new data
       saveEdit(updateData) {
