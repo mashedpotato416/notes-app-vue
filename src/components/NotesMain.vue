@@ -62,14 +62,12 @@
         // toggle
         this.initDelete = !this.initDelete
         // emit
-        this.$emit('deleteId')
+        this.$emit('refresh')
       },
       //function to toggle edit view and emit new data
-      saveEdit(updateData) {
-        // this.noteTitle = updateData[1]
-        // this.noteContent = updateData[2]
-        this.$emit('updateNote',updateData)
+      saveEdit() {
         this.initEdit = false
+        this.$emit('refresh')
       }
     },
     computed: {

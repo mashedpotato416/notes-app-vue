@@ -27,47 +27,81 @@
   </div>
 </template>
 <script>
-export default {
-  data() {
-    return {
-      editId:"",
-      editTitle:"",
-      editContent:"",
-      editUser:""
-    }
-  },
-  props: {
-    existId: { type: String },
-    existTitle: { type: String },
-    existContent: { type: String },
-    existUser: { type: String },
-  },
-  mounted() {
-    // fill up form with existing data
-    var title = this.$refs.refTitle
-    var content = this.$refs.refContent
-    title.value = this.existTitle
-    content.value = this.existContent
-    // presets if user don't edit these values
-    this.editTitle = this.existTitle
-    this.editContent = this.existContent
-  },
-  methods: {
-    onCancel() {
-      this.$emit('edit-cancel')
+  import firebase from "../utilities/firebase.js"
+  export default {
+    data() {
+      return {
+        editId:"",
+        editTitle:"",
+        editContent:"",
+        editUser:""
+      }
     },
-    onSave() {
-      // create array of updated values and send to NotesMain
-      var updateId = this.existId
-      var updateTitle = this.editTitle
-      var updateContent = this.editContent
-      var updateDate = Date.now()
-      var updateUser = this.existUser
-      var updateData = [updateId, updateTitle, updateContent, updateDate, updateUser]
-      this.$emit('edit-save',updateData) 
+    props: {
+      existId: { type: String },
+      existTitle: { type: String },
+      existContent: { type: String },
+      existUser: { type: String },
+    },
+    mounted() {
+      // fill up form with existing data
+      var title = this.$refs.refTitle
+      var content = this.$refs.refContent
+      title.value = this.existTitle
+      content.value = this.existContent
+      // presets if user don't edit these values
+      this.editTitle = this.existTitle
+      this.editContent = this.existContent
+    },
+    methods: {
+      onCancel() {
+        this.$emit('edit-cancel')
+      },
+      // function to get snapshot of data in firebase
+      getSnapshotFirebase() {
+        return firebase.database().ref('notes').once('value')
+        .then( (snapshot) => {
+          return snapshot.val()
+        })
+      },
+      // function to get a pushID that match the searchID
+      getFirebasePushId(snapshot, searchId) {
+        var databasePushIds = Object.keys(snapshot)
+        var notePushId = ""
+        databasePushIds.forEach( (pushId) => {
+          if(snapshot[pushId].dataId === searchId) {
+            notePushId = pushId
+          }
+        })
+        return notePushId
+      },
+      // function that appends update in the database
+      onSave() {
+        // prepare data
+        var searchId = this.existId
+        var noteUpdates = {
+          dataUser: this.existUser,
+          dataId: this.existId,
+          dataTitle: this.editTitle,
+          dataContent: this.editContent,
+          dataDate: Date.now()
+        }
+        this.getSnapshotFirebase()
+        // get which pushId correspond to the note that needs to be deleted
+        .then( (snapshot) => {
+          var pushId = this.getFirebasePushId(snapshot, searchId)
+          return pushId 
+        })
+        // update
+        .then( (pushId) => {
+          firebase.database().ref('notes/' + pushId).update(noteUpdates)
+        })
+        .then( () => {
+          this.$emit('edit-save')
+        })
+      }
     }
   }
-}
 </script>
 <style>
   .edit-flex > div {

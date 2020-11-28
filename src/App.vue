@@ -7,7 +7,7 @@
       <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="logout">Logout</button>
       <!-- For testing purposes: -->
-      <button class="logout-button" @click="testMethod">Test</button>
+      <!-- <button class="logout-button" @click="testMethod">Test</button> -->
       <ul>
         <li><notes-create 
               @note-added="RefreshNotes"
@@ -26,8 +26,7 @@
               :noteTitle="note.dataTitle" 
               :noteContent="note.dataContent"
               :currentUser="currentUser"
-              @deleteId="RefreshNotes"
-              @updateNote="updateNotes"> 
+              @refresh="RefreshNotes"> 
             </notes-main>
           </li>
         </div>
@@ -76,21 +75,21 @@ export default {
   },
   methods: {
     // For testing purposes:
-    testMethod() {
-      var test = ""
-      firebase.database().ref('notes').once('value')
-      .then( (snapshot) => {
-        return snapshot.val()
-      })
-      .then( (data) => {
-        console.log(data)
-        return data
-      })
-      .then( (data) => {
-        test = data
-        console.log(test)
-      })
-    },
+    // testMethod() {
+    //   var test = ""
+    //   firebase.database().ref('notes').once('value')
+    //   .then( (snapshot) => {
+    //     return snapshot.val()
+    //   })
+    //   .then( (data) => {
+    //     console.log(data)
+    //     return data
+    //   })
+    //   .then( (data) => {
+    //     test = data
+    //     console.log(test)
+    //   })
+    // },
     // function that login the user and close the login popup
     logIn(user) {
       this.loggedIn = true
@@ -110,41 +109,6 @@ export default {
       .then( (data) => {
         this.Notes = data
       })
-    },
-    // function to get a pushID that match the searchID
-    getFirebasePushId(snapshot, searchId) {
-      var databasePushIds = Object.keys(snapshot)
-      var notePushId = ""
-      databasePushIds.forEach( (pushId) => {
-        if(snapshot[pushId].dataId === searchId) {
-          notePushId = pushId
-        }
-      })
-      return notePushId
-    },
-    // function that appends update in the database
-    updateNotes(updateData) {
-      var searchId = updateData[0]
-      // prepare data
-      var noteUpdates = {
-        dataUser: updateData[4],
-        dataId: updateData[0],
-        dataTitle: updateData[1],
-        dataContent: updateData[2],
-        dataDate: updateData[3]
-      }
-      this.getSnapshotFirebase()
-      // get which pushId correspond to the note that needs to be deleted
-      .then( (snapshot) => {
-        var pushId = this.getFirebasePushId(snapshot, searchId)
-        return pushId 
-      })
-      // update
-      .then( (pushId) => {
-        firebase.database().ref('notes/' + pushId).update(noteUpdates)
-      })
-      // refresh
-      .then( this.RefreshNotes )
     },
     logout() {
       firebase.auth().signOut().then( () => {
