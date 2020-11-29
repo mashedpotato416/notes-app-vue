@@ -4,7 +4,6 @@
     <div class="container" ref="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
-      <button class="logout-button" @click="RefreshNotes">Refresh</button>
       <button class="logout-button" @click="logout">Logout</button>
       <!-- For testing purposes: -->
       <!-- <button class="logout-button" @click="testMethod">Test</button> -->
@@ -13,7 +12,7 @@
               @note-added="RefreshNotes"
               :currentUser="currentUser">
             </notes-create></li>
-        <div v-if="Notes === null">
+        <div v-if="notesData === null">
           <li class="no-data">
             <strong>No notes are posted at the moment.</strong>
           </li>
@@ -50,12 +49,10 @@
       NotesCreate,
       NotesLogin
     },
-    data() {
-      return {
-        Notes: null
-      };
-    },
     computed: {
+      notesData: function () {
+        return this.$cookies.get('notesData')
+      },
       currentUser: function () {
         return this.$cookies.get('currentUser')
       },
@@ -68,7 +65,7 @@
         }
       },
       sortedNotes: function () {
-        var data = this.Notes
+        var data = this.notesData
         var sortedList = []
           Object.keys(data).forEach( (keys) => {
             sortedList.push(data[keys])
@@ -93,14 +90,19 @@
       getSnapshotFirebase () {
         return firebase.database().ref('notes').once('value')
         .then( (snapshot) => {
-          return snapshot.val()
+          return snapshot
         })
       },
-      // function to fetch updates from firebase to Notes
+      // function to fetch updates from firebase to notesData
       RefreshNotes () {
         this.getSnapshotFirebase()
-        .then( (data) => {
-          this.Notes = data
+        .then( (snapshot) => {
+          var browserData = this.$cookies.get('notesData')
+          var firebaseData = snapshot.val()
+          if (browserData == null || browserData !== firebaseData) {
+            this.$cookies.set('notesData', firebaseData)
+            location.reload()
+          }
         })
       },
       // function to log user out
@@ -117,11 +119,17 @@
       if (this.$cookies.get('currentUser') != null) {
         this.$refs.container.style.opacity = 1
       }
+    },
+    created () {
       // get data for Notes
       var database = firebase.database()
       database.ref('notes').once('value')
       .then( (snapshot) => {
-        this.Notes = snapshot.val()
+        var browserData = this.$cookies.get('notesData')
+        var firebaseData = snapshot.val()
+        if (browserData == null || browserData !== firebaseData) {
+          this.$cookies.set('notesData', firebaseData)
+        }
       })
     }  
   }

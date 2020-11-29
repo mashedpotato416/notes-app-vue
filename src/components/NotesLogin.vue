@@ -29,8 +29,8 @@
           }
         },
         // for development
-        // signInSuccessUrl: 'http://localhost:8080/',
-        signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
+        signInSuccessUrl: 'http://localhost:8080/',
+        // signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
         // sign in options from firebase
         signInOptions: [
           {
