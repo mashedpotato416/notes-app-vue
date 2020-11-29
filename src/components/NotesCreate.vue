@@ -26,6 +26,8 @@
           ref="newTextarea">
         </textarea>
       </div>
+      <div id="create-prompt" ref="createError">
+      </div>
     </div>
     <div class="note-buttons">
       <button class="button note-button" @click="onAdd">Add</button>
@@ -48,7 +50,15 @@
       onAdd () {
         // validate user input
         if (this.noteTitle === "" || this.noteContent === "") {
-          return;
+          if (this.noteTitle === "" && this.noteContent === "") {
+            this.$refs.createError.innerHTML = "Entries must not be blank!"
+          } else if (this.noteTitle === "") {
+            this.$refs.createError.innerHTML = "Title must not be blank!"
+          } else {
+            this.$refs.createError.innerHTML = "Content must not be blank!"
+          }
+          this.$refs.createError.style="margin: 10px"
+          return
         }
         // prepare data
         var pushIds = []
@@ -129,5 +139,9 @@
   }
   .flex1 {
     flex: 1
+  }
+  #create-prompt {
+    margin: 10px;
+    color: red
   }
 </style>

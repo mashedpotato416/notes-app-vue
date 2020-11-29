@@ -17,6 +17,8 @@
           ref="refContent"
           v-model.lazy.trim="editContent">
         </textarea>
+      </div>
+      <div id="edit-prompt" ref="editError">
       </div>  
     </div>
     <div class="edit-user">
@@ -79,6 +81,24 @@
       },
       // function that appends update in the database
       onSave () {
+        // validate inputs
+        if (this.editTitle === "" || this.editContent === "" || (this.editTitle === this.existTitle && this.editContent === this.existContent)) {
+          if (this.editTitle === this.existTitle && this.editContent === this.existContent) {
+            this.$refs.editError.innerHTML = "Changes must be made!"
+          } else if (this.editTitle === "" && this.editContent === "") {
+            this.$refs.editError.innerHTML = "Entries must not be blank!"
+          } else if (this.noteTitle === "") {
+            this.$refs.editError.innerHTML = "Title must not be blank!"
+          } else {
+            this.$refs.editError.innerHTML = "Content must not be blank!"
+          }
+          this.$refs.editError.style="margin: 10px"
+          return
+        }
+        // validate input if blank
+        if (this.editTitle === "" || this.editContent === "") {
+          return
+        }
         // prepare data
         var searchId = this.existId
         var noteUpdates = {
@@ -123,5 +143,9 @@
   .edit-user {
     text-align: right;
     padding: 11px;
+  }
+  #edit-prompt {
+    margin: 10px;
+    color: red
   }
 </style>
