@@ -4,14 +4,16 @@
       <div>
         <input 
           type="text" 
-          class="edit-title" 
+          class="edit-title"
+          autocomplete="off" 
           ref="refTitle"
           v-model.trim="editTitle">
       </div>
       <div>
         <textarea 
           class="edit-content" 
-          rows="4" 
+          rows="4"
+          autocomplete="off" 
           ref="refContent"
           v-model.lazy.trim="editContent">
         </textarea>

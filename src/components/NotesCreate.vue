@@ -6,9 +6,11 @@
         <input 
           type="text"
           class="flex1" 
-          id="newTitle" 
+          id="newTitle"
+          autocomplete="off" 
           v-model.lazy.trim="noteTitle" 
-          ref="newInput">
+          ref="newInput"
+          >
       </div>
     </div>
     <br>
@@ -18,7 +20,8 @@
         <textarea
           class="flex1" 
           id="newContent" 
-          rows="7"  
+          rows="7"
+          autocomplete="off"  
           v-model.lazy.trim="noteContent"
           ref="newTextarea">
         </textarea>
