@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <notes-login v-if="!loggedIn" @logged-in="logIn"></notes-login>
+    <notes-login v-if="!loggedIn"></notes-login>
     <div class="container" ref="container">
       <h1 class="header">Notes App</h1>
       <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
@@ -39,6 +39,9 @@
   import NotesCreate from "./components/NotesCreate.vue"
   import NotesLogin from "./components/NotesLogin.vue"
   import firebase from "./utilities/firebase.js"
+  import Vue from 'vue'
+  import VueCookies from 'vue-cookies'
+  Vue.use(VueCookies)
 
   export default {
     name: "app",
@@ -49,12 +52,21 @@
     },
     data() {
       return {
-        currentUser: "sample@yahoo.com",
-        Notes: null,
-        loggedIn: false
+        Notes: null
       };
     },
     computed: {
+      currentUser: function () {
+        return this.$cookies.get('currentUser')
+      },
+      loggedIn: function () {
+        if (this.$cookies.get('currentUser') == null) {
+          return false
+        }
+        else {
+          return true
+        }
+      },
       sortedNotes: function () {
         var data = this.Notes
         var sortedList = []
@@ -74,16 +86,9 @@
       }
     },
     methods: {
-      // // method for testing
+      // *****method for testing******
       // testMethod() {
-        
       // },
-      // function that login the user and close the login popup
-      logIn (user) {
-        this.loggedIn = true
-        this.currentUser = user
-        this.$refs.container.style.opacity = 1
-      },
       // function to get snapshot of data in firebase
       getSnapshotFirebase () {
         return firebase.database().ref('notes').once('value')
@@ -102,14 +107,19 @@
       logout () {
         firebase.auth().signOut().then( () => {
           this.loggedIn = false
+          this.$cookies.remove('currentUser')
           location.reload()
         })
       }
     },
     mounted () {
+      // change opacity if a user is loggedIn
+      if (this.$cookies.get('currentUser') != null) {
+        this.$refs.container.style.opacity = 1
+      }
       // get data for Notes
       var database = firebase.database()
-      return database.ref('notes').once('value')
+      database.ref('notes').once('value')
       .then( (snapshot) => {
         this.Notes = snapshot.val()
       })
