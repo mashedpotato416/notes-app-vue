@@ -20,14 +20,16 @@
         callbacks: {
           // user data is extracted here
           signInSuccessWithAuthResult: (authResult) => {
-            this.$emit('logged-in',authResult.user.email)
-            return false
+            this.$cookies.set('currentUser', authResult.user.email)
+            return true
           },
           // function that fires when UI render is ready
           uiShown: function () {
             document.getElementById('loader').style.display = 'none';
           }
         },
+        // for development
+        // signInSuccessUrl: 'http://localhost:8080/',
         signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
         // sign in options from firebase
         signInOptions: [
