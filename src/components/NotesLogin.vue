@@ -1,8 +1,48 @@
 <template>
   <div class="fill">
     <div class="login-popup">
-      <div class="welcome-message"> <strong> Welcome to Notes App! </strong> </div>
-      <div class="login-message"> Choose log in method to proceed </div>
+      <div class="welcome-message"> 
+        <strong> Welcome to Notes App!<br>Please login.</strong> 
+      </div>
+      <div class="login-message"> 
+        <div class="form-email"> 
+          <label 
+            class="label-text" 
+            for="user-email">
+              <strong>Email:</strong>
+          </label>
+          <input 
+            id="user-email" 
+            type="text"
+            size="30"
+            v-model.lazy.trim="userEmail">
+        </div>
+        <div class="form-pass"> 
+          <label 
+            class="label-text" 
+            for="user-password">
+              <strong>Password:</strong>
+          </label>
+          <input 
+            id="user-password" 
+            type="password"
+            size="30"
+            v-model.lazy.trim="userPassword">
+        </div>
+        <div class="form-prompt" ref="errorPrompt">
+          TEST MESSAGE
+        </div>
+        <div>
+          <button 
+            class="login-button"
+            @click="onLogin"> 
+            Login 
+          </button>
+        </div>
+        <div class="or-message">
+          or
+        </div> 
+      </div>
       <div id="firebaseui-auth-container"></div>
       <div id="loader"></div>
     </div>
@@ -14,7 +54,30 @@
   import 'firebaseui/dist/firebaseui.css'
 
   export default {
-    
+    data() {
+      return {
+        userEmail: "",
+        userPassword: ""
+      }
+    },
+    methods: {
+      onLogin () {
+        console.log('Loging in ...')
+        var email = this.userEmail
+        var password = this.userPassword
+        firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((user) => {
+          this.$cookies.set('currentUser', user.user.email)
+          location.reload()
+        })
+        .catch((error) => {
+          var errorMessage = error.message;
+          this.$refs.errorPrompt.style.visibility = 'visible'
+          this.$refs.errorPrompt.style.margin = '10px'
+          this.$refs.errorPrompt.innerHTML = errorMessage
+        });
+      }
+    },
     mounted() {
       var uiConfig = {
         callbacks: {
@@ -29,14 +92,14 @@
           }
         },
         // for development
-        signInSuccessUrl: 'http://localhost:8080/',
-        // signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
+        // signInSuccessUrl: 'http://localhost:8080/',
+        signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
         // sign in options from firebase
         signInOptions: [
-          {
-            provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-            requireDisplayname: false
-          },
+          // {
+          //   provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+          //   requireDisplayname: false
+          // },
           firebase.auth.GoogleAuthProvider.PROVIDER_ID,
           firebase.auth.GithubAuthProvider.PROVIDER_ID
         ]
@@ -83,8 +146,7 @@
   font-size: 1em;
   text-align: center;
   padding: 5px;
-  margin: 60px 10px 25px 10px;
-  text-transform: uppercase;
+  margin: 5px;
 }
 /*************** LOADER ******************/
 #loader {
@@ -103,5 +165,40 @@
   100% { transform: rotate(360deg); }
 }
 /*****************************************/
-  
+.form-email .form-password {
+  margin: 10px;
+  text-align: center;
+}
+.label-text {
+  margin: 5px;
+  display: block;
+  text-align: center;
+}
+#user-email #user-password {
+  display: block;
+}
+.or-message {
+  display: block;
+  margin: 10px;
+}
+.login-button {
+  border-color: #ffffff;
+  padding: 5px;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 12px 12px;
+  cursor: pointer;
+  width: 100px;
+  height: 30px;
+  background-color: #63c1ce;
+  border-radius: 12px;
+  text-transform: uppercase;
+  font-size: 0.75em;
+}
+.form-prompt {
+  visibility: hidden;
+  color: red;
+}
+
 </style>

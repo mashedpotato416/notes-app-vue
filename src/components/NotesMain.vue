@@ -103,7 +103,7 @@
     font-size: 16px;
     margin: 5px 5px;
     cursor: pointer;
-    width: 18%;
+    width: 100px;
     height: 30px;
     background-color: #ffffff;
     border-radius: 12px;
