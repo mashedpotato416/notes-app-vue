@@ -45,7 +45,8 @@
       existId: { type: String },
       existTitle: { type: String },
       existContent: { type: String },
-      existUser: { type: String }
+      existUser: { type: String },
+      existDone: { type: Boolean }
     },
     mounted() {
       // fill up form with existing data
@@ -106,7 +107,8 @@
           dataId: this.existId,
           dataTitle: this.editTitle,
           dataContent: this.editContent,
-          dataDate: Date.now()
+          dataDate: Date.now(),
+          dataDone: this.existDone
         }
         this.getSnapshotFirebase()
         // get which pushId correspond to the note that needs to be deleted
@@ -117,9 +119,11 @@
         // update
         .then( (pushId) => {
           firebase.database().ref('notes/' + pushId).update(noteUpdates)
-        })
-        .then( () => {
-          this.$emit('edit-save')
+          var data = {
+            pushId: pushId,
+            noteUpdates: noteUpdates
+          }
+          this.$emit('edit-save', data)
         })
       }
     }

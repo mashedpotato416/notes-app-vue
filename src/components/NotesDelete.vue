@@ -42,12 +42,12 @@
         // remove note with pushId that corresponds to the searchId
         .then( (pushId) => {
           firebase.database().ref('notes/' + pushId).remove()
-        })
-        .then( () => {
+          // emit
+          this.$emit('delete-yes',pushId)
           // toggle
           this.initDelete = !this.initDelete
-          // emit
-          this.$emit('delete-yes')
+        })
+        .then( () => {
         })
       },
       deleteNo() {

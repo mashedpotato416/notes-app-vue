@@ -1,18 +1,43 @@
 <template>
   <div v-if="!initEdit" class="note-block">
-    <div class="note-title"><strong>{{ noteTitle }}</strong></div>
-    <div class="note-content">{{ noteContent }}</div>
-    <div class="note-user"><em>by: {{ noteUser }}</em></div>
-    <div v-if="checkUser">
-      <div v-if="!initDelete" class="note-buttons">
-        <button class="button note-button" @click="onEdit">Edit</button>
-        <button class="button note-button delete-button" @click="onDelete">Delete</button>
+    <div class="checkboxData">
+      <div class="note-title">
+        <label class="checkbox-container">
+          <input 
+            type="checkbox" 
+            class="checkbox" 
+            :checked="isNoteDone"
+            @change="toggleNoteDone">
+        </label>
+        <strong>{{ noteTitle }}</strong>
       </div>
-      <div v-else>
-      <notes-delete
-        :noteId="noteId"
-        @delete-yes="yesDelete" 
-        @delete-no="onDelete"></notes-delete>
+      <div class="note-content">
+        {{ noteContent }}
+      </div>
+      <div class="note-user">
+        <em>by: {{ noteUser }}</em>
+      </div>
+      <div>
+        <div 
+          v-if="!initDelete" 
+          class="note-buttons">
+          <button 
+            class="button note-button" 
+            @click="onEdit">
+            Edit
+          </button>
+          <button 
+            class="button note-button delete-button" 
+            @click="onDelete">
+            Delete
+          </button>
+        </div>
+        <div v-else>
+        <notes-delete
+          :noteId="noteId"
+          @delete-yes="yesDelete" 
+          @delete-no="onDelete"></notes-delete>
+        </div>
       </div>
     </div>
   </div>
@@ -22,14 +47,16 @@
       :existTitle="noteTitle" 
       :existContent="noteContent" 
       :existUser="noteUser"
+      :existDone="isNoteDone"
       @edit-cancel="onEdit"
-      @edit-save="saveEdit">
+      @edit-save="doneEdit">
     </notes-edit>
   </div>
 </template>
 <script>
   import NotesDelete from "./NotesDelete.vue"
   import NotesEdit from "./NotesEdit.vue"
+  import firebase from "../utilities/firebase.js"
   export default {
     data() {
       return {
@@ -46,31 +73,65 @@
         noteTitle: { type: String },
         noteContent: { type: String },
         noteUser: { type: String },
-        currentUser : { type: String }
+        currentUser : { type: String },
+        noteDone: { type: Boolean },
       },
     methods: {
-      //function to toggle delete view
+      // function to toggle delete view
       onDelete () {
         this.initDelete = !this.initDelete
       },
-      //function to toggle edit view
+      // function to toggle edit view
       onEdit () {
         this.initEdit = !this.initEdit
       },
-      //function to toggle delete view and emit signal to refresh
-      yesDelete () {
+      // function to toggle delete view and emit signal to refresh
+      yesDelete (pushId) {
         this.initDelete = !this.initDelete
-        this.$emit('refresh')
+        this.$emit('delete', pushId)
       },
-      //function to toggle edit view and emit signal to refresh
-      saveEdit () {
+      // function to toggle edit view and emit signal to refresh
+      doneEdit (data) {
         this.initEdit = false
-        this.$emit('refresh')
+        this.$emit('edit',data)
+      },
+      // function that toggle noteDone and update database
+      toggleNoteDone () {
+        var data = {
+          dataId: this.noteId,
+          dataDone: !this.noteDone
+        }
+        var pushId = ""
+        // emit data to App.vue
+        this.$emit('toggleDone', data)
+        // update firebase
+        firebase.database().ref('notes').once('value')
+        .then( (snapshot) => {
+          return snapshot.val()
+        })
+        // get pushId
+        .then( (firebaseData) => {
+          var pushKeys = Object.keys(firebaseData)
+          pushKeys.forEach( (key) => {
+            if ( firebaseData[key].dataId === data.dataId ) {
+              pushId = key
+            }
+          });
+        })
+        // update firebase
+        .then( () => {
+          var updates = {}
+          updates['/notes/' + pushId + '/dataDone'] = data.dataDone
+          firebase.database().ref().update(updates)
+        })
       }
     },
     computed: {
-      checkUser () {
+      checkUser: function () {
         return this.currentUser === this.noteUser
+      },
+      isNoteDone: function () {
+        return this.noteDone
       }
     }
   }  
@@ -123,4 +184,30 @@
     border-color: red !important;
     color: #ffffff !important;
   }
+  /************** from w3schools ************/
+  .checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  }
+  /* On mouse-over, add a grey background color */
+  .checkbox-container:hover input ~ .checkmark {
+    background-color: #ccc;
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: #2196F3;
+  }
+
+  /************** from w3schools ************/
+
+  .checkbox {
+    transform: scale(2);
+    margin: 5px 15px 5px 5px;
+  }
+
 </style>

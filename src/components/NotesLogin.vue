@@ -93,6 +93,7 @@
         },
         // for development
         // signInSuccessUrl: 'http://localhost:8080/',
+        // for deploy
         signInSuccessUrl: 'https://notes-app-vue-a42c9.web.app/',
         // sign in options from firebase
         signInOptions: [

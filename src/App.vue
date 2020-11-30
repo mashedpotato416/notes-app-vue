@@ -3,16 +3,19 @@
     <notes-login v-if="!loggedIn"></notes-login>
     <div class="container" ref="container">
       <h1 class="header">Notes App</h1>
-      <div class="login-prompt">You are currently logged in as <strong>{{ currentUser }}</strong></div>
+      <div class="login-prompt">
+        You are currently logged in as <strong>{{ currentUser }}</strong>
+      </div>
       <button class="logout-button" @click="logout">Logout</button>
       <!-- For testing purposes: -->
       <!-- <button class="logout-button" @click="testMethod">Test</button> -->
       <ul>
         <li><notes-create 
-              @note-added="RefreshNotes"
+              @add="addNotes"
               :currentUser="currentUser">
-            </notes-create></li>
-        <div v-if="notesData === null">
+            </notes-create>
+        </li>
+        <div v-if="sortedNotes.length === 0">
           <li class="no-data">
             <strong>No notes are posted at the moment.</strong>
           </li>
@@ -24,8 +27,11 @@
               :noteId="note.dataId" 
               :noteTitle="note.dataTitle" 
               :noteContent="note.dataContent"
+              :noteDone="note.dataDone"
               :currentUser="currentUser"
-              @refresh="RefreshNotes"> 
+              @edit="editNotes"
+              @delete="deleteNotes"
+              @toggleDone="toggleDoneNotes"> 
             </notes-main>
           </li>
         </div>
@@ -44,17 +50,32 @@
 
   export default {
     name: "app",
+    data() {
+      return {
+        notesDatabase: {}
+      }
+    },
     components: {
       NotesMain,
       NotesCreate,
       NotesLogin
     },
     computed: {
-      notesData: function () {
-        return this.$cookies.get('notesData')
-      },
       currentUser: function () {
         return this.$cookies.get('currentUser')
+      },
+      // returns true if user has notes in database
+      checkUserNotes: function () {
+        var browserDatabase = this.notesDatabase
+        var notesCount = 0
+        var pushKeys = Object.keys(browserDatabase)
+        pushKeys.forEach( (key) => {
+          if ( browserDatabase[key].dataUser === this.currentUser ) {
+            notesCount++;
+          }
+        })
+        var res = notesCount > 0 ? true : false
+        return res
       },
       loggedIn: function () {
         if (this.$cookies.get('currentUser') == null) {
@@ -65,11 +86,14 @@
         }
       },
       sortedNotes: function () {
-        var data = this.notesData
+        var data = this.notesDatabase
         var sortedList = []
-          Object.keys(data).forEach( (keys) => {
-            sortedList.push(data[keys])
-          })
+        var pushKeys = Object.keys(data)
+        pushKeys.forEach( (key) => {
+          if ( data[key].dataUser === this.currentUser ) {
+            sortedList.push(data[key])
+          }
+        })
         sortedList.sort((firstNote,secondNote) => {
             if (firstNote.dataDate > secondNote.dataDate) {
               return -1
@@ -93,17 +117,15 @@
           return snapshot
         })
       },
-      // function to fetch updates from firebase to notesData
-      RefreshNotes () {
-        this.getSnapshotFirebase()
-        .then( (snapshot) => {
-          var browserData = this.$cookies.get('notesData')
-          var firebaseData = snapshot.val()
-          if (browserData == null || browserData !== firebaseData) {
-            this.$cookies.set('notesData', firebaseData)
-            location.reload()
-          }
-        })
+      // function that append new notes
+      addNotes (emitData) {
+        var newDatabase = this.notesDatabase
+        var pushKey = emitData.pushKey
+        var newData = emitData.newData
+        newDatabase[pushKey] = newData
+        // force reload
+        this.notesDatabase = {}
+        this.notesDatabase = newDatabase
       },
       // function to log user out
       logout () {
@@ -112,6 +134,32 @@
           this.$cookies.remove('currentUser')
           location.reload()
         })
+      },
+      // function that updates local Done on checkbox change
+      toggleDoneNotes (data) {
+        var browserDatabase = this.notesDatabase
+        var pushKeys = Object.keys(browserDatabase)
+        pushKeys.forEach( (key) => {
+          if ( browserDatabase[key].dataId === data.dataId ) {
+            browserDatabase[key].dataDone = data.dataDone
+          }
+        })
+      },
+      deleteNotes (pushId) {
+        var browserDatabase = this.notesDatabase
+        var updatedDatabase = {}
+        var pushKeys = Object.keys(browserDatabase)
+        pushKeys.forEach( (key) => {
+          if (key !== pushId) {
+            updatedDatabase[key] = browserDatabase[key]
+          }
+        })
+        this.notesDatabase = updatedDatabase
+      },
+      editNotes (data) {
+        var pushId = data.pushId
+        var noteData = data.noteUpdates
+        this.notesDatabase[pushId] = noteData
       }
     },
     mounted () {
@@ -121,15 +169,11 @@
       }
     },
     created () {
-      // get data for Notes
+      // get data from firebase for logged-in user
       var database = firebase.database()
       database.ref('notes').once('value')
       .then( (snapshot) => {
-        var browserData = this.$cookies.get('notesData')
-        var firebaseData = snapshot.val()
-        if (browserData == null || browserData !== firebaseData) {
-          this.$cookies.set('notesData', firebaseData)
-        }
+        this.notesDatabase = snapshot.val()
       })
     }  
   }

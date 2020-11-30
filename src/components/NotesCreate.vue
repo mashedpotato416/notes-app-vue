@@ -69,7 +69,8 @@
           dataId: "",
           dataTitle: this.noteTitle,
           dataContent: this.noteContent,
-          dataDate: Date.now()
+          dataDate: Date.now(),
+          dataDone: false
         }
         firebase.database().ref('notes').once('value')
         .then( (snapshot) => {
@@ -102,14 +103,21 @@
         })
         // upload to firebase
         .then( (newId) => {
-          //set dataId to the Id created
+          // set dataId to the Id created
           newData.dataId = newId
-          firebase.database().ref('notes').push(newData)
+          var newPushKey = firebase.database().ref().child('notes').push().key
+          firebase.database().ref('notes/' + newPushKey).set(newData)
+          // emit data and pushKey to 'App.vue'
+          var emitData = {
+            pushKey: newPushKey,
+            newData: newData
+          }
+          this.$emit('add', emitData)
         })
+        // update notesDatabase
         .then( () => {
           this.$refs.newTextarea.value = ""
           this.$refs.newInput.value = ""
-          this.$emit('note-added')
         })
       }
     }
