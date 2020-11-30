@@ -48,7 +48,7 @@
         </li>
         <div v-if="sortedNotes.length === 0">
           <li class="no-data">
-            <strong>No notes are posted at the moment.</strong>
+            <strong> {{ noNotesPrompt }} </strong>
           </li>
         </div>
         <div v-else>
@@ -148,6 +148,24 @@
             }
           })
         return sortedList
+      },
+      noNotesPrompt: function () {
+        var displayFilter = this.filter
+        var message = ""
+        switch (displayFilter) {
+          case "all":
+            message = "No notes are posted"
+            break;
+          case "pending":
+            message = "No notes are pending"
+            break;
+          case "done":
+            message = "No notes are checked"
+            break;
+          default:
+            message = "There seems to be a problem with your notes" 
+        }
+        return message
       }
     },
     methods: {
