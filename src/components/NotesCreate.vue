@@ -114,8 +114,10 @@
           }
           this.$emit('add', emitData)
         })
-        // update notesDatabase
+        // clear fields
         .then( () => {
+          this.noteTitle = ""
+          this.noteContent = ""
           this.$refs.newTextarea.value = ""
           this.$refs.newInput.value = ""
         })
