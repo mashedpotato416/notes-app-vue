@@ -14,8 +14,8 @@
       <div class="note-content">
         {{ noteContent }}
       </div>
-      <div class="note-user">
-        <em>by: {{ noteUser }}</em>
+      <div class="note-date">
+        <em>created/updated: {{ dateUTC }}</em>
       </div>
       <div>
         <div 
@@ -75,6 +75,7 @@
         noteUser: { type: String },
         currentUser : { type: String },
         noteDone: { type: Boolean },
+        noteDate: { type: Number }
       },
     methods: {
       // function to toggle delete view
@@ -132,6 +133,11 @@
       },
       isNoteDone: function () {
         return this.noteDone
+      },
+      dateUTC: function () {
+        var dateMiliseconds = parseInt(this.noteDate)
+        var date = new Date(dateMiliseconds)
+        return date.toUTCString()
       }
     }
   }  
@@ -152,9 +158,10 @@
     text-align: justify;
     text-justify: inter-word;
   }
-  .note-user {
+  .note-date {
     text-align: right;
     padding: 10px;
+    font-size: 0.9em;
   }
   .button {
     border-color: #ffffff;

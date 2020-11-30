@@ -7,6 +7,37 @@
         You are currently logged in as <strong>{{ currentUser }}</strong>
       </div>
       <button class="logout-button" @click="logout">Logout</button>
+      <div>
+        <label class="radio-buttons" for="display-all"> 
+          <input 
+            type="radio" 
+            id="display-all" 
+            name="filter" 
+            value="all"
+            checked="true"
+            v-model="filter">
+          Display All 
+        </label>
+        <label class="radio-buttons" for="display-pending"> 
+          <input 
+            type="radio" 
+            id="display-pending" 
+            name="filter" 
+            value="pending"
+            v-model="filter">
+          Display Pending 
+        </label>
+        <label class="radio-buttons" for="display-done"> 
+          <input 
+            type="radio" 
+            id="display-done" 
+            name="filter" 
+            value="done"
+            v-model="filter">
+          Display Done 
+        </label>
+      </div>
+
       <!-- For testing purposes: -->
       <!-- <button class="logout-button" @click="testMethod">Test</button> -->
       <ul>
@@ -28,6 +59,7 @@
               :noteTitle="note.dataTitle" 
               :noteContent="note.dataContent"
               :noteDone="note.dataDone"
+              :noteDate="note.dataDate"
               :currentUser="currentUser"
               @edit="editNotes"
               @delete="deleteNotes"
@@ -52,7 +84,8 @@
     name: "app",
     data() {
       return {
-        notesDatabase: {}
+        notesDatabase: {},
+        filter: 'all',
       }
     },
     components: {
@@ -87,13 +120,24 @@
       },
       sortedNotes: function () {
         var data = this.notesDatabase
+        var displayFilter = this.filter
         var sortedList = []
         var pushKeys = Object.keys(data)
+        // filter notes as per users request
         pushKeys.forEach( (key) => {
-          if ( data[key].dataUser === this.currentUser ) {
-            sortedList.push(data[key])
+          if (data[key].dataUser === this.currentUser) {
+            if ( displayFilter === "all") {
+              sortedList.push(data[key])
+            } 
+            if ( displayFilter === "pending" && data[key].dataDone === false) {
+              sortedList.push(data[key])
+            }
+            if ( displayFilter === "done" && data[key].dataDone === true) {
+              sortedList.push(data[key])
+            } 
           }
         })
+        // sort notes by date
         sortedList.sort((firstNote,secondNote) => {
             if (firstNote.dataDate > secondNote.dataDate) {
               return -1
@@ -209,7 +253,7 @@ textarea, input {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 5px 5px;
+  margin: 20px 10px;
   cursor: pointer;
   width: 18%;
   height: 30px;
@@ -236,4 +280,8 @@ li {
   font-size: 1.2em;
   color: red;
 }
+.radio-buttons {
+  margin: 15px;
+}
+
 </style>
