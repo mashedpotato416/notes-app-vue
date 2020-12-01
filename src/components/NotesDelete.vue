@@ -1,8 +1,8 @@
 <template>
-  <div class="notes-delete">
+  <div class="alert alert-danger text-center" role="alert">
       <p> Are you sure you want to delete this note? </p>
-      <button @click="deleteYes" class="button note-button delete-button">Yes</button>
-      <button @click="deleteNo" class="button note-button">No</button>
+      <button @click="deleteYes" class="px-4 mx-3 btn btn-danger">Yes</button>
+      <button @click="deleteNo" class="px-4 mx-3 btn btn-secondary">No</button>
   </div>
 </template>
 <script>
@@ -58,32 +58,4 @@
     
 </script>
 <style>
-  .button {
-    border-color: #ffffff;
-    padding: 5px;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 2px 2px;
-    cursor: pointer;
-    width: 20%;
-    height: 30px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    text-transform: uppercase;
-    font-size: 0.75em;
-  }
-  .notes-delete {
-    padding: 8px;
-    text-align: center;
-  }
-  /* to center note-buttons */
-  .note-button {
-    margin: 5px 30px 5px 30px;
-  }
-  .delete-button {
-    background-color: red !important;
-    border-color: red !important;
-    color: #ffffff !important;
-  }
 </style>

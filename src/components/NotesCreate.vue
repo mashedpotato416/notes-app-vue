@@ -1,37 +1,50 @@
 <template>
-  <div class="new-block">
-    <div class="new-title">
-      <label for="newTitle"><strong>Title:</strong></label><br>
-      <div class="flex">
-        <input 
-          type="text"
-          class="flex1" 
-          id="newTitle"
-          autocomplete="off" 
-          v-model.lazy.trim="noteTitle" 
-          ref="newInput"
-          >
+  <div class="px-4 py-4 bg-secondary container-fluid">
+    <form onsubmit="event.preventDefault()">
+      <div class="form-group">
+        <label 
+          for="newTitle" 
+          class="font-weight-normal text-light">
+          Title:
+        </label>
+        <div class="flex">
+          <input 
+            type="text"
+            class="form-control" 
+            id="newTitle"
+            autocomplete="off" 
+            v-model.lazy.trim="noteTitle" 
+            ref="newInput"
+            >
+        </div>
       </div>
-    </div>
-    <br>
-    <div class="new-content">
-      <label for="newContent"><strong>Content:</strong></label><br>
-      <div class="flex">
-        <textarea
-          class="flex1" 
-          id="newContent" 
-          rows="7"
-          autocomplete="off"  
-          v-model.lazy.trim="noteContent"
-          ref="newTextarea">
-        </textarea>
+      <div class="form-group">
+        <label for="newContent" 
+          class="font-weight-normal text-light">
+          Content:
+        </label>
+        <div class="flex">
+          <textarea
+            class="form-control" 
+            id="newContent" 
+            rows="4"
+            autocomplete="off"  
+            v-model.lazy.trim="noteContent"
+            ref="newTextarea">
+          </textarea>
+        </div>
       </div>
-      <div id="create-prompt" ref="createError">
+      <!-- error prompt -->
+      <div 
+        class="alert alert-danger text-center" 
+        role="alert" 
+        ref="createError" 
+        style="visibility: hidden;">
       </div>
-    </div>
-    <div class="note-buttons">
-      <button class="button note-button" @click="onAdd">Add</button>
-    </div>
+      <div class="text-center">
+        <button class="btn btn-info" @click="onAdd">Add Note</button>
+      </div>
+    </form>
   </div>
 </template>
 <script>
@@ -57,7 +70,7 @@
           } else {
             this.$refs.createError.innerHTML = "Content must not be blank!"
           }
-          this.$refs.createError.style="margin: 10px"
+          this.$refs.createError.style="margin: 10px; visibility: visible;"
           return
         }
         // prepare data
@@ -127,31 +140,5 @@
   
 </script>
 <style>
-/* button styling in NotesMain.vue */
-  .new-block {
-    width: 95%;
-    background-color: #0385f49e;
-    border-radius: 12px;
-    margin: 8px auto 8px auto;
-    text-align: center;
-  }
-  .new-title, .new-content 
-  {
-    padding: 10px;
-  }
-  .clear-button {
-    background-color: red !important;
-    border-color: red !important;
-    color: #ffffff !important;
-  }
-  .flex {
-    display: flex;
-  }
-  .flex1 {
-    flex: 1
-  }
-  #create-prompt {
-    margin: 10px;
-    color: red
-  }
+  
 </style>

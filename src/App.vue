@@ -1,73 +1,97 @@
 <template>
   <div id="app">
-    <notes-login v-if="!loggedIn"></notes-login>
-    <div class="container" ref="container">
-      <h1 class="header">Notes App</h1>
-      <div class="login-prompt">
-        You are currently logged in as <strong>{{ currentUser }}</strong>
-      </div>
-      <button class="logout-button" @click="logout">Logout</button>
-      <div>
-        <label class="radio-buttons" for="display-all"> 
-          <input 
-            type="radio" 
-            id="display-all" 
-            name="filter" 
-            value="all"
-            checked="true"
-            v-model="filter">
-          Display All 
-        </label>
-        <label class="radio-buttons" for="display-pending"> 
-          <input 
-            type="radio" 
-            id="display-pending" 
-            name="filter" 
-            value="pending"
-            v-model="filter">
-          Display Pending 
-        </label>
-        <label class="radio-buttons" for="display-done"> 
-          <input 
-            type="radio" 
-            id="display-done" 
-            name="filter" 
-            value="done"
-            v-model="filter">
-          Display Done 
-        </label>
-      </div>
-
-      <!-- For testing purposes: -->
-      <!-- <button class="logout-button" @click="testMethod">Test</button> -->
-      <ul>
-        <li><notes-create 
-              @add="addNotes"
-              :currentUser="currentUser">
+    <!-- LOGIN -->
+    <div style="visibility: visibile;" ref="loginPage">
+      <notes-login v-if="!loggedIn"></notes-login>
+    </div>
+    <div style="visibility: hidden;" class="container-fluid position-absolute h-100 bg-light" ref="contentPage">
+      <div class ="row d-flex align-items-center justify-content-center h-100">
+        <div class="col-sm-8 bg-light align-middle h-100 px-0">
+          <h1 class="text-center display-4 font-weight-normal">Notes App</h1>
+          <div class="text-center font-italic font-weight-light">
+            You are currently logged in as 
+              <span class="font-weight-normal text-info">
+                <u>{{ currentUser }}</u>
+              </span>
+          </div>
+          <div class="text-center my-3">
+            <button class="btn btn-info" @click="logout">Logout</button>
+          </div>
+          <!-- For testing purposes: -->
+          <!-- <button class="logout-button" @click="testMethod">Test</button> -->
+          <!-- ADD notes -->
+          <div>
+            <notes-create 
+                  @add="addNotes"
+                  :currentUser="currentUser">
             </notes-create>
-        </li>
-        <div v-if="sortedNotes.length === 0">
-          <li class="no-data">
-            <strong> {{ noNotesPrompt }} </strong>
-          </li>
+          </div>
+          <!-- toggle buttons -->
+          <div class="text-center my-3 brn-group btn-group-toggle" data-toggle="buttons">
+            <label class="mx-1 btn btn-secondary active" for="display-all"> 
+              <input 
+                type="radio" 
+                id="display-all" 
+                name="filter"
+                autocomplete="off" 
+                value="all"
+                checked="true"
+                v-model="filter">
+              Display All 
+            </label>
+            <label class="mx-1 btn btn-secondary" for="display-pending"> 
+              <input 
+                type="radio" 
+                id="display-pending" 
+                name="filter"
+                autocomplete="off" 
+                value="pending"
+                v-model="filter">
+              Display Pending 
+            </label>
+            <label class="mx-1 btn btn-secondary" for="display-done"> 
+              <input 
+                type="radio" 
+                id="display-done" 
+                name="filter"
+                autocomplete="off" 
+                value="done"
+                v-model="filter">
+              Display Done 
+            </label>
+          </div>
+          <!-- DISPLAY Notes -->
+          <ul class="list-unstyled">
+            <div 
+              class="mx-4 text-left font-weight-normal"
+              style="font-size: 2em;"> 
+              Notes: 
+            </div>
+            <div v-if="sortedNotes.length === 0">
+              <li class="alert alert-warning text-center">
+                {{ noNotesPrompt }}
+              </li>
+            </div>
+            <div v-else>
+              <li v-for="note in sortedNotes" :key="note.dataId">
+                  <notes-main 
+                    :noteUser="note.dataUser" 
+                    :noteId="note.dataId" 
+                    :noteTitle="note.dataTitle" 
+                    :noteContent="note.dataContent"
+                    :noteDone="note.dataDone"
+                    :noteDate="note.dataDate"
+                    :currentUser="currentUser"
+                    @edit="editNotes"
+                    @delete="deleteNotes"
+                    @toggleDone="toggleDoneNotes"> 
+                  </notes-main>
+              </li>
+            </div>
+          </ul>
+          <!-- ************** -->
         </div>
-        <div v-else>
-          <li v-for="note in sortedNotes" :key="note.dataId">
-            <notes-main 
-              :noteUser="note.dataUser" 
-              :noteId="note.dataId" 
-              :noteTitle="note.dataTitle" 
-              :noteContent="note.dataContent"
-              :noteDone="note.dataDone"
-              :noteDate="note.dataDate"
-              :currentUser="currentUser"
-              @edit="editNotes"
-              @delete="deleteNotes"
-              @toggleDone="toggleDoneNotes"> 
-            </notes-main>
-          </li>
-        </div>
-      </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -227,7 +251,8 @@
     mounted () {
       // change opacity if a user is loggedIn
       if (this.$cookies.get('currentUser') != null) {
-        this.$refs.container.style.opacity = 1
+        this.$refs.loginPage.style = "visibility: hidden;"
+        this.$refs.contentPage.style = "visibility: visible;"
       }
     },
     created () {
@@ -243,63 +268,4 @@
 </script>
 
 <style>
-textarea, input {
-  font-family: "Source Sans Pro", sans-serif;
-  font-size: 0.9em;
-}
-.container {
-  opacity: 0.1;
-  font-family: "Source Sans Pro", sans-serif;
-  color: #2c3e50;
-  margin-top: 60px;
-  margin: auto;
-  width: 70%;
-  border: 3px solid #4bf8f8;
-  padding: 0px;
-  background-color: #4fffff30;
-  border-radius: 5px;
-  text-align: center;
-}
-.header {
-  position: relative;
-  font-size: 3em;
-  margin-bottom: 5px;
-}
-.logout-button {
-  border-color: #ffffff;
-  padding: 5px;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 16px;
-  margin: 20px 10px;
-  cursor: pointer;
-  width: 18%;
-  height: 30px;
-  background-color: #ffffff;
-  border-radius: 12px;
-  text-transform: uppercase;
-  font-size: 0.7em;
-}
-.login-prompt {
-  text-align: center;
-  font-size: 1em;
-  margin: 5px;
-}
-ul {
-  list-style-type: none;
-  padding: 5px;
-  text-align: center;
-  margin: auto;
-}
-li {
-  margin: 15px auto 15px auto;
-}
-.no-data {
-  font-size: 1.2em;
-  color: red;
-}
-.radio-buttons {
-  margin: 15px;
-}
-
 </style>

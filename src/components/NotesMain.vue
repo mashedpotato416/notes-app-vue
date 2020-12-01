@@ -1,42 +1,55 @@
 <template>
-  <div v-if="!initEdit" class="note-block">
-    <div class="checkboxData">
-      <div class="note-title">
-        <label class="checkbox-container">
+  <div v-if="!initEdit" class="alert alert-info my-2 container-fluid">
+    <div class="row row align-items-center">  
+      <!-- checkbox -->
+      <div class="col-2 col align-self-start">
+        <div class="ml-4 mt-3">
           <input 
             type="checkbox" 
-            class="checkbox" 
+            class="form-check-input"
+            style="height: 35px; width: 35px;"
             :checked="isNoteDone"
             @change="toggleNoteDone">
-        </label>
-        <strong>{{ noteTitle }}</strong>
-      </div>
-      <div class="note-content">
-        {{ noteContent }}
-      </div>
-      <div class="note-date">
-        <em>created/updated: {{ dateUTC }}</em>
-      </div>
-      <div>
-        <div 
-          v-if="!initDelete" 
-          class="note-buttons">
-          <button 
-            class="button note-button" 
-            @click="onEdit">
-            Edit
-          </button>
-          <button 
-            class="button note-button delete-button" 
-            @click="onDelete">
-            Delete
-          </button>
         </div>
-        <div v-else>
-        <notes-delete
-          :noteId="noteId"
-          @delete-yes="yesDelete" 
-          @delete-no="onDelete"></notes-delete>
+      </div>
+      <!-- notecontent -->
+      <div class="col-10">
+        <div class="my-2 text-justify text-left text-break">
+          <strong>{{ noteTitle }}</strong>
+        </div>
+        <div class="my-2">
+          <p 
+            class="lead text-justify text-right text-break"
+            style="font-size: 0.95em;">
+            {{ noteContent }}
+          </p>
+        </div>
+        <div class="my-2 text-justify text-right">
+          <small><em>created/updated: {{ dateUTC }}</em></small>
+        </div>
+        <!-- buttons -->
+        <div class="row">
+          <div 
+            v-if="!initDelete" 
+            class="col align-self-center text-center my-3">
+            <button 
+              class="btn btn-info px-3 mr-5" 
+              @click="onEdit">
+              Edit Note
+            </button>
+            <button 
+              class="btn btn-danger mx-3" 
+              @click="onDelete">
+              Delete Note
+            </button>
+          </div>
+          <div v-else>
+            <notes-delete
+              :noteId="noteId"
+              @delete-yes="yesDelete" 
+              @delete-no="onDelete">
+            </notes-delete>
+          </div>
         </div>
       </div>
     </div>
@@ -143,78 +156,4 @@
   }  
 </script>
 <style>
-  .note-block{
-    width: 95%;
-    background-color: #03f4f4ab;
-    border-radius: 12px;
-    margin: 8px auto 8px auto;
-    text-align: left;
-  }
-  .note-title {
-    padding: 10px;
-  }
-  .note-content {
-    padding: 10px;
-    text-align: justify;
-    text-justify: inter-word;
-  }
-  .note-date {
-    text-align: right;
-    padding: 10px;
-    font-size: 0.9em;
-  }
-  .button {
-    border-color: #ffffff;
-    padding: 5px;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 5px 5px;
-    cursor: pointer;
-    width: 100px;
-    height: 30px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    text-transform: uppercase;
-    font-size: 0.7em;
-  }
-  .note-buttons {
-    padding: 8px;
-    text-align: center;
-  }
-  /* to center note-buttons */
-  .note-button {
-    margin: 5px 30px 5px 30px;
-  }
-  .delete-button {
-    background-color: red !important;
-    border-color: red !important;
-    color: #ffffff !important;
-  }
-  /************** from w3schools ************/
-  .checkmark {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 25px;
-  width: 25px;
-  background-color: #eee;
-  }
-  /* On mouse-over, add a grey background color */
-  .checkbox-container:hover input ~ .checkmark {
-    background-color: #ccc;
-  }
-
-  /* When the checkbox is checked, add a blue background */
-  .checkbox-container input:checked ~ .checkmark {
-    background-color: #2196F3;
-  }
-
-  /************** from w3schools ************/
-
-  .checkbox {
-    transform: scale(2);
-    margin: 5px 15px 5px 5px;
-  }
-
 </style>
