@@ -64,14 +64,14 @@
               <div class="my-3">
                 <button 
                   class="btn btn-danger"
-                  @click="onLogin"> 
+                  @click="onLoginAuthProvider('Google')"> 
                   Login with Google 
                 </button>
               </div>
               <div class="my-3">
                 <button 
                   class="btn btn-secondary"
-                  @click="onLogin"> 
+                  @click="onLoginAuthProvider('GitHub')"> 
                   Login with GitHub 
                 </button>
               </div>
@@ -83,8 +83,10 @@
 </template>
 <script>
   import firebase from "../utilities/firebase.js"
+  // ************************ CODE FOR FIREBASE UI ******************* //
   // import * as firebaseui from 'firebaseui'
   // import 'firebaseui/dist/firebaseui.css'
+  // ***************************************************************** //
 
   export default {
     data() {
@@ -99,17 +101,39 @@
         var email = this.userEmail
         var password = this.userPassword
         firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((user) => {
-          this.$cookies.set('currentUser', user.user.email)
+        .then( (result) => {
+          this.$cookies.set('currentUser', result.user.email)
           location.reload()
         })
-        .catch((error) => {
+        .catch( (error) => {
+          var errorMessage = error.message;
+          this.$refs.errorPrompt.style = 'visibility: visible;'
+          this.$refs.errorPrompt.innerHTML = errorMessage
+        });
+      },
+      onLoginAuthProvider ( prov ) {
+        var provider = ""
+        switch ( prov ) {
+          case 'Google':
+            provider = new firebase.auth.GoogleAuthProvider();
+            break;
+          case 'GitHub':
+            provider = new firebase.auth.GithubAuthProvider();
+            break;
+        }
+        firebase.auth().signInWithPopup(provider)
+        .then( (result) => {
+          this.$cookies.set('currentUser', result.user.email)
+          location.reload()
+        })
+        .catch( (error) => {
           var errorMessage = error.message;
           this.$refs.errorPrompt.style = 'visibility: visible;'
           this.$refs.errorPrompt.innerHTML = errorMessage
         });
       }
     },
+    // ************************ CODE FOR FIREBASE UI ******************* //
     // mounted() {
     //   var uiConfig = {
     //     callbacks: {
@@ -140,6 +164,7 @@
     //   var ui = new firebaseui.auth.AuthUI(firebase.auth())
     //   ui.start('#firebaseui-auth-container', uiConfig)
     // }
+    // **************************************************************** //
   }  
 </script>
 <style>
